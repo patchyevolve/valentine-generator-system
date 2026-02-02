@@ -389,5 +389,5 @@
     }
 }
 
-/* Font loading optimization */
-@font-display: swap;
+/* Font loading optimization - Applied in @font-face rules */
+/* @font-display: swap; should be used within @font-face declarations */
