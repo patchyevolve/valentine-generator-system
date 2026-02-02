@@ -362,11 +362,11 @@ def validate_custom_pin(pin):
     if not pin:
         return False
     
-    # Must be 4-6 digits only
+    # Must be 4 digits only
     if not pin.isdigit():
         return False
     
-    if len(pin) < 4 or len(pin) > 6:
+    if len(pin) != 4:
         return False
     
     # Avoid obviously weak PINs

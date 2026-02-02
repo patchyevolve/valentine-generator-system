@@ -112,11 +112,11 @@ class ValentineGenerator {
         if (customPinInput) {
             console.log('📍 Custom PIN input found, setting up validation');
             
-            // Validate PIN input (only numbers, 4-6 digits)
+            // Validate PIN input (only numbers, 4 digits)
             customPinInput.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/[^0-9]/g, ''); // Only numbers
-                if (value.length > 6) {
-                    value = value.substring(0, 6); // Max 6 digits
+                if (value.length > 4) {
+                    value = value.substring(0, 4); // Max 4 digits
                 }
                 e.target.value = value;
                 
@@ -128,8 +128,8 @@ class ValentineGenerator {
             customPinInput.addEventListener('paste', (e) => {
                 setTimeout(() => {
                     let value = e.target.value.replace(/[^0-9]/g, '');
-                    if (value.length > 6) {
-                        value = value.substring(0, 6);
+                    if (value.length > 4) {
+                        value = value.substring(0, 4);
                     }
                     e.target.value = value;
                     this.validatePinInput(e.target);
@@ -144,7 +144,7 @@ class ValentineGenerator {
     
     validatePinInput(input) {
         const value = input.value;
-        const isValid = /^[0-9]{4,6}$/.test(value);
+        const isValid = /^[0-9]{4}$/.test(value);
         
         // Remove existing validation classes
         input.classList.remove('valid', 'invalid', 'partial');
