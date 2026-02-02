@@ -9,7 +9,7 @@
 class ValentineGenerator {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 4;
+        this.totalSteps = 5;
         this.formData = new FormData();
         this.isSubmitting = false;
         

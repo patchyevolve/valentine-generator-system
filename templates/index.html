@@ -28,6 +28,9 @@ Valentine's Day Experience Generator
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/generator.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/particle-animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/svg-animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography-animations.css') }}">
     
     <!-- Meta tags -->
     <meta name="theme-color" content="#ff6b9d">
@@ -207,6 +210,89 @@ Valentine's Day Experience Generator
                             </div>
                         </div>
 
+                        <!-- Step 5: Typography & Effects -->
+                        <div class="form-step" data-step="5">
+                            <div class="step-header">
+                                <h3 class="step-title">Step 5: Typography & Effects</h3>
+                                <p class="step-description">Choose fonts, text effects, and background animations</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">💫 Font Style</label>
+                                <div class="font-selector" id="font-selector">
+                                    <!-- Font options will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">✨ Text Effects</label>
+                                <div class="effect-options">
+                                    <div class="effect-option">
+                                        <input type="radio" id="effect_none" name="text_effect" value="none" checked>
+                                        <label for="effect_none" class="effect-label">
+                                            <span class="effect-preview">Normal Text</span>
+                                            <span class="effect-name">None</span>
+                                        </label>
+                                    </div>
+                                    <div class="effect-option">
+                                        <input type="radio" id="effect_glow" name="text_effect" value="glow">
+                                        <label for="effect_glow" class="effect-label">
+                                            <span class="effect-preview text-glow">Glowing Text</span>
+                                            <span class="effect-name">Soft Glow</span>
+                                        </label>
+                                    </div>
+                                    <div class="effect-option">
+                                        <input type="radio" id="effect_gradient" name="text_effect" value="gradient">
+                                        <label for="effect_gradient" class="effect-label">
+                                            <span class="effect-preview text-gradient">Gradient Text</span>
+                                            <span class="effect-name">Gradient</span>
+                                        </label>
+                                    </div>
+                                    <div class="effect-option">
+                                        <input type="radio" id="effect_shadow" name="text_effect" value="shadow">
+                                        <label for="effect_shadow" class="effect-label">
+                                            <span class="effect-preview text-shadow">Shadow Text</span>
+                                            <span class="effect-name">Drop Shadow</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">🎭 Text Animation</label>
+                                <div class="animation-options">
+                                    <div class="animation-option">
+                                        <input type="radio" id="anim_fade" name="text_animation" value="fade_in" checked>
+                                        <label for="anim_fade" class="animation-label">
+                                            <span class="animation-name">Fade In</span>
+                                            <span class="animation-desc">Gentle fade in</span>
+                                        </label>
+                                    </div>
+                                    <div class="animation-option">
+                                        <input type="radio" id="anim_typewriter" name="text_animation" value="typewriter">
+                                        <label for="anim_typewriter" class="animation-label">
+                                            <span class="animation-name">Typewriter</span>
+                                            <span class="animation-desc">Types out character by character</span>
+                                        </label>
+                                    </div>
+                                    <div class="animation-option">
+                                        <input type="radio" id="anim_bounce" name="text_animation" value="bounce">
+                                        <label for="anim_bounce" class="animation-label">
+                                            <span class="animation-name">Bounce In</span>
+                                            <span class="animation-desc">Bounces in with spring effect</span>
+                                        </label>
+                                    </div>
+                                    <div class="animation-option">
+                                        <input type="radio" id="anim_wave" name="text_animation" value="wave">
+                                        <label for="anim_wave" class="animation-label">
+                                            <span class="animation-name">Wave</span>
+                                            <span class="animation-desc">Letters wave in sequence</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Form Navigation -->
                         <div class="form-navigation">
                             <button type="button" class="btn btn-secondary" id="prev-btn" style="display: none;">
@@ -230,6 +316,7 @@ Valentine's Day Experience Generator
                                 <div class="progress-step">2</div>
                                 <div class="progress-step">3</div>
                                 <div class="progress-step">4</div>
+                                <div class="progress-step">5</div>
                             </div>
                         </div>
                     </form>
@@ -321,6 +408,10 @@ Valentine's Day Experience Generator
     </footer>
 
     <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/color-gradients.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/particle-systems.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/svg-animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/typography-manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/generator.js') }}"></script>
 </body>
 </html>

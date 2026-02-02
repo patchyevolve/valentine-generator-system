@@ -105,7 +105,12 @@ class DatabaseManager:
                             expires_at TIMESTAMP,
                             view_count INTEGER DEFAULT 0,
                             is_active BOOLEAN DEFAULT TRUE,
-                            metadata TEXT
+                            metadata TEXT,
+                            font_style TEXT DEFAULT 'sans_modern',
+                            text_effect TEXT DEFAULT 'none',
+                            text_animation TEXT DEFAULT 'fade_in',
+                            particle_system TEXT DEFAULT 'none',
+                            svg_animation TEXT DEFAULT 'none'
                         )
                     ''')
                     
@@ -148,7 +153,12 @@ class DatabaseManager:
                             view_count INTEGER DEFAULT 0,
                             is_active BOOLEAN DEFAULT 1,
                             metadata TEXT,
-                            access_pin TEXT
+                            access_pin TEXT,
+                            font_style TEXT DEFAULT 'sans_modern',
+                            text_effect TEXT DEFAULT 'none',
+                            text_animation TEXT DEFAULT 'fade_in',
+                            particle_system TEXT DEFAULT 'none',
+                            svg_animation TEXT DEFAULT 'none'
                         )
                     ''')
                     
@@ -446,6 +456,64 @@ COLOR_PALETTES = {
         'accent': '#ff7675',
         'background': 'linear-gradient(135deg, #fdcb6e 0%, #f39c12 50%, #ff7675 100%)',
         'description': 'Warm golden tones like sunset'
+    },
+    
+    # NEW ENHANCED GRADIENTS
+    'neon_cyberpunk': {
+        'name': 'Neon Cyberpunk',
+        'primary': '#ff0080',
+        'secondary': '#00ffff',
+        'accent': '#ff4081',
+        'background': 'linear-gradient(135deg, #ff0080 0%, #7928ca 30%, #00ffff 70%, #ff4081 100%)',
+        'description': 'Electric neon colors with cyberpunk vibes'
+    },
+    'pastel_rainbow': {
+        'name': 'Pastel Rainbow',
+        'primary': '#ffeaa7',
+        'secondary': '#fab1a0',
+        'accent': '#fd79a8',
+        'background': 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 25%, #fd79a8 50%, #a29bfe 75%, #74b9ff 100%)',
+        'description': 'Soft pastel rainbow with dreamy colors'
+    },
+    'dark_gothic': {
+        'name': 'Dark Gothic',
+        'primary': '#2d3436',
+        'secondary': '#636e72',
+        'accent': '#e17055',
+        'background': 'linear-gradient(135deg, #2d3436 0%, #636e72 50%, #e17055 100%)',
+        'description': 'Dark romantic with gothic elegance'
+    },
+    'metallic_gold': {
+        'name': 'Metallic Gold',
+        'primary': '#f39c12',
+        'secondary': '#d35400',
+        'accent': '#fdcb6e',
+        'background': 'linear-gradient(135deg, #f39c12 0%, #d35400 30%, #fdcb6e 70%, #f1c40f 100%)',
+        'description': 'Luxurious metallic gold with bronze'
+    },
+    'rose_gold': {
+        'name': 'Rose Gold',
+        'primary': '#e84393',
+        'secondary': '#fd79a8',
+        'accent': '#fdcb6e',
+        'background': 'linear-gradient(135deg, #e84393 0%, #fd79a8 40%, #fdcb6e 80%, #f39c12 100%)',
+        'description': 'Elegant rose gold with warm tones'
+    },
+    'cherry_blossom': {
+        'name': 'Cherry Blossom',
+        'primary': '#fd79a8',
+        'secondary': '#fdcb6e',
+        'accent': '#fab1a0',
+        'background': 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 30%, #fab1a0 70%, #ffeaa7 100%)',
+        'description': 'Soft cherry blossom pink and cream'
+    },
+    'midnight_aurora': {
+        'name': 'Midnight Aurora',
+        'primary': '#00b894',
+        'secondary': '#00cec9',
+        'accent': '#a29bfe',
+        'background': 'linear-gradient(135deg, #2d3436 0%, #00b894 30%, #00cec9 60%, #a29bfe 100%)',
+        'description': 'Northern lights over midnight sky'
     }
 }
 
@@ -465,6 +533,84 @@ BACKGROUND_STYLES = {
     'minimal': {
         'name': 'Minimal Clean',
         'description': 'Clean and minimal background'
+    },
+    
+    # NEW ENHANCED BACKGROUNDS
+    'hearts': {
+        'name': 'Heart Rain',
+        'description': 'Falling animated hearts'
+    },
+    'stars': {
+        'name': 'Starfield',
+        'description': 'Twinkling stars with depth'
+    },
+    'petals': {
+        'name': 'Rose Petals',
+        'description': 'Floating rose petals'
+    },
+    'fireflies': {
+        'name': 'Fireflies',
+        'description': 'Glowing dots with trails'
+    },
+    'bubbles': {
+        'name': 'Bubbles',
+        'description': 'Floating soap bubbles'
+    },
+    'svg_hearts': {
+        'name': 'Animated Hearts',
+        'description': 'Pulsing heart shapes with smooth animations'
+    },
+    'svg_waves': {
+        'name': 'Geometric Waves',
+        'description': 'Flowing wave patterns with gradient colors'
+    },
+    'svg_shapes': {
+        'name': 'Floating Shapes',
+        'description': 'Geometric shapes floating with depth'
+    },
+    'svg_nature': {
+        'name': 'Nature Elements',
+        'description': 'Animated leaves, flowers, and butterflies'
+    }
+}
+
+# Font styles for typography
+FONT_STYLES = {
+    'script_elegant': {
+        'name': 'Elegant Script',
+        'family': '"Dancing Script", "Brush Script MT", cursive',
+        'category': 'script',
+        'description': 'Flowing script font perfect for romantic messages'
+    },
+    'script_romantic': {
+        'name': 'Romantic Script',
+        'family': '"Great Vibes", "Lucida Handwriting", cursive',
+        'category': 'script',
+        'description': 'Romantic handwritten style'
+    },
+    'serif_classic': {
+        'name': 'Classic Serif',
+        'family': '"Playfair Display", "Times New Roman", serif',
+        'category': 'serif',
+        'description': 'Elegant classical serif'
+    },
+    'serif_romantic': {
+        'name': 'Romantic Serif',
+        'family': '"Crimson Text", "Georgia", serif',
+        'category': 'serif',
+        'description': 'Romantic book-style serif'
+    },
+    'sans_modern': {
+        'name': 'Modern Sans',
+        'family': '"Poppins", "Helvetica Neue", sans-serif',
+        'category': 'sans',
+        'description': 'Clean modern sans-serif'
+    },
+    'sans_elegant': {
+        'name': 'Elegant Sans',
+        'family': '"Montserrat", "Arial", sans-serif',
+        'category': 'sans',
+        'description': 'Sophisticated sans-serif'
     }
 }
 
@@ -530,7 +676,8 @@ def index():
     try:
         return render_template('index.html', 
                              color_palettes=COLOR_PALETTES,
-                             background_styles=BACKGROUND_STYLES)
+                             background_styles=BACKGROUND_STYLES,
+                             font_styles=FONT_STYLES)
     except Exception as e:
         logger.error(f"Error in main route: {e}")
         return f"Error loading page: {str(e)}", 500
