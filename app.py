@@ -6,6 +6,8 @@ A professional web application for creating personalized Valentine's Day experie
 
 import os
 import sqlite3
+import psycopg2
+import psycopg2.extras
 import secrets
 import string
 import logging
@@ -18,6 +20,7 @@ from werkzeug.utils import secure_filename
 import traceback
 import hashlib
 import json
+from urllib.parse import urlparse
 
 # Configure comprehensive logging
 logging.basicConfig(
@@ -55,77 +58,129 @@ for directory in REQUIRED_DIRS:
 
 # Database setup and management
 class DatabaseManager:
-    """Handles all database operations with proper error handling"""
+    """Handles all database operations with proper error handling for both SQLite and PostgreSQL"""
     
-    def __init__(self, db_path):
-        self.db_path = db_path
+    def __init__(self, db_url):
+        self.db_url = db_url
+        self.is_postgres = db_url.startswith('postgresql://') or db_url.startswith('postgres://')
         self.init_database()
+    
+    def get_connection(self):
+        """Get database connection based on database type"""
+        if self.is_postgres:
+            return psycopg2.connect(self.db_url)
+        else:
+            return sqlite3.connect(self.db_url)
     
     def init_database(self):
         """Initialize database with required tables"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                # Create main table
-                conn.execute('''
-                    CREATE TABLE IF NOT EXISTS valentine_experiences (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        unique_id TEXT UNIQUE NOT NULL,
-                        creator_name TEXT NOT NULL,
-                        recipient_name TEXT NOT NULL,
-                        creator_email TEXT,
-                        personal_message TEXT NOT NULL,
-                        memory_text TEXT,
-                        question_text TEXT,
-                        color_palette TEXT NOT NULL,
-                        background_style TEXT NOT NULL,
-                        video_filename TEXT,
-                        music_filename TEXT,
-                        custom_css TEXT,
-                        creator_ip TEXT,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        expires_at TIMESTAMP,
-                        view_count INTEGER DEFAULT 0,
-                        is_active BOOLEAN DEFAULT 1,
-                        metadata TEXT  -- JSON field for additional data
-                    )
-                ''')
-                
-                # Check if access_pin column exists, if not add it
-                cursor = conn.execute("PRAGMA table_info(valentine_experiences)")
-                columns = [column[1] for column in cursor.fetchall()]
-                
-                if 'access_pin' not in columns:
-                    logger.info("Adding access_pin column to existing database")
-                    conn.execute('ALTER TABLE valentine_experiences ADD COLUMN access_pin TEXT')
+            with self.get_connection() as conn:
+                if self.is_postgres:
+                    conn.autocommit = True
+                    cursor = conn.cursor()
                     
-                    # Update existing records with random PINs
-                    conn.execute('''
-                        UPDATE valentine_experiences 
-                        SET access_pin = printf('%04d', abs(random()) % 10000)
-                        WHERE access_pin IS NULL
+                    # Create main table for PostgreSQL
+                    cursor.execute('''
+                        CREATE TABLE IF NOT EXISTS valentine_experiences (
+                            id SERIAL PRIMARY KEY,
+                            unique_id TEXT UNIQUE NOT NULL,
+                            creator_name TEXT NOT NULL,
+                            recipient_name TEXT NOT NULL,
+                            creator_email TEXT,
+                            personal_message TEXT NOT NULL,
+                            memory_text TEXT,
+                            question_text TEXT,
+                            color_palette TEXT NOT NULL,
+                            background_style TEXT NOT NULL,
+                            video_filename TEXT,
+                            music_filename TEXT,
+                            custom_css TEXT,
+                            access_pin TEXT,
+                            creator_ip TEXT,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            expires_at TIMESTAMP,
+                            view_count INTEGER DEFAULT 0,
+                            is_active BOOLEAN DEFAULT TRUE,
+                            metadata TEXT
+                        )
                     ''')
-                    logger.info("Updated existing experiences with random PINs")
+                    
+                    cursor.execute('''
+                        CREATE TABLE IF NOT EXISTS experience_views (
+                            id SERIAL PRIMARY KEY,
+                            experience_id TEXT NOT NULL,
+                            viewer_ip TEXT,
+                            viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            user_agent TEXT,
+                            FOREIGN KEY (experience_id) REFERENCES valentine_experiences (unique_id)
+                        )
+                    ''')
+                    
+                    # Create indexes for PostgreSQL
+                    cursor.execute('CREATE INDEX IF NOT EXISTS idx_unique_id ON valentine_experiences(unique_id)')
+                    cursor.execute('CREATE INDEX IF NOT EXISTS idx_expires_at ON valentine_experiences(expires_at)')
+                    cursor.execute('CREATE INDEX IF NOT EXISTS idx_creator_ip ON valentine_experiences(creator_ip)')
+                    
+                else:
+                    # SQLite version
+                    conn.execute('''
+                        CREATE TABLE IF NOT EXISTS valentine_experiences (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            unique_id TEXT UNIQUE NOT NULL,
+                            creator_name TEXT NOT NULL,
+                            recipient_name TEXT NOT NULL,
+                            creator_email TEXT,
+                            personal_message TEXT NOT NULL,
+                            memory_text TEXT,
+                            question_text TEXT,
+                            color_palette TEXT NOT NULL,
+                            background_style TEXT NOT NULL,
+                            video_filename TEXT,
+                            music_filename TEXT,
+                            custom_css TEXT,
+                            creator_ip TEXT,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            expires_at TIMESTAMP,
+                            view_count INTEGER DEFAULT 0,
+                            is_active BOOLEAN DEFAULT 1,
+                            metadata TEXT,
+                            access_pin TEXT
+                        )
+                    ''')
+                    
+                    # Check if access_pin column exists, if not add it
+                    cursor = conn.execute("PRAGMA table_info(valentine_experiences)")
+                    columns = [column[1] for column in cursor.fetchall()]
+                    
+                    if 'access_pin' not in columns:
+                        logger.info("Adding access_pin column to existing database")
+                        conn.execute('ALTER TABLE valentine_experiences ADD COLUMN access_pin TEXT')
+                        
+                        # Update existing records with random PINs
+                        conn.execute('''
+                            UPDATE valentine_experiences 
+                            SET access_pin = printf('%04d', abs(random()) % 10000)
+                            WHERE access_pin IS NULL
+                        ''')
+                        logger.info("Updated existing experiences with random PINs")
+                    
+                    conn.execute('''
+                        CREATE TABLE IF NOT EXISTS experience_views (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            experience_id TEXT NOT NULL,
+                            viewer_ip TEXT,
+                            viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            user_agent TEXT,
+                            FOREIGN KEY (experience_id) REFERENCES valentine_experiences (unique_id)
+                        )
+                    ''')
+                    
+                    # Create indexes for SQLite
+                    conn.execute('CREATE INDEX IF NOT EXISTS idx_unique_id ON valentine_experiences(unique_id)')
+                    conn.execute('CREATE INDEX IF NOT EXISTS idx_expires_at ON valentine_experiences(expires_at)')
+                    conn.execute('CREATE INDEX IF NOT EXISTS idx_creator_ip ON valentine_experiences(creator_ip)')
                 
-                conn.execute('''
-                    CREATE TABLE IF NOT EXISTS experience_views (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        experience_id TEXT NOT NULL,
-                        viewer_ip TEXT,
-                        viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        user_agent TEXT,
-                        FOREIGN KEY (experience_id) REFERENCES valentine_experiences (unique_id)
-                    )
-                ''')
-                
-                conn.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_unique_id ON valentine_experiences(unique_id)
-                ''')
-                
-                conn.execute('''
-                    CREATE INDEX IF NOT EXISTS idx_created_at ON valentine_experiences(created_at)
-                ''')
-                
-                conn.commit()
                 logger.info("Database initialized successfully")
                 
         except Exception as e:
@@ -149,33 +204,62 @@ class DatabaseManager:
             
             logger.info(f"Creating experience with ID: {unique_id}, PIN: {access_pin}")
             
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute('''
-                    INSERT INTO valentine_experiences (
-                        unique_id, creator_name, recipient_name, creator_email,
-                        personal_message, memory_text, question_text,
-                        color_palette, background_style, video_filename,
-                        music_filename, custom_css, access_pin, creator_ip, expires_at, metadata
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (
-                    unique_id,
-                    experience_data.get('creator_name'),
-                    experience_data.get('recipient_name'),
-                    experience_data.get('creator_email'),
-                    experience_data.get('personal_message'),
-                    experience_data.get('memory_text'),
-                    experience_data.get('question_text'),
-                    experience_data.get('color_palette'),
-                    experience_data.get('background_style'),
-                    experience_data.get('video_filename'),
-                    experience_data.get('music_filename'),
-                    experience_data.get('custom_css'),
-                    access_pin,
-                    experience_data.get('creator_ip'),
-                    expires_at,
-                    json.dumps(experience_data.get('metadata', {}))
-                ))
-                conn.commit()
+            with self.get_connection() as conn:
+                if self.is_postgres:
+                    cursor = conn.cursor()
+                    cursor.execute('''
+                        INSERT INTO valentine_experiences (
+                            unique_id, creator_name, recipient_name, creator_email,
+                            personal_message, memory_text, question_text,
+                            color_palette, background_style, video_filename,
+                            music_filename, custom_css, access_pin, creator_ip, expires_at, metadata
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ''', (
+                        unique_id,
+                        experience_data.get('creator_name'),
+                        experience_data.get('recipient_name'),
+                        experience_data.get('creator_email'),
+                        experience_data.get('personal_message'),
+                        experience_data.get('memory_text'),
+                        experience_data.get('question_text'),
+                        experience_data.get('color_palette'),
+                        experience_data.get('background_style'),
+                        experience_data.get('video_filename'),
+                        experience_data.get('music_filename'),
+                        experience_data.get('custom_css'),
+                        access_pin,
+                        experience_data.get('creator_ip'),
+                        expires_at,
+                        json.dumps(experience_data.get('metadata', {}))
+                    ))
+                    conn.commit()
+                else:
+                    conn.execute('''
+                        INSERT INTO valentine_experiences (
+                            unique_id, creator_name, recipient_name, creator_email,
+                            personal_message, memory_text, question_text,
+                            color_palette, background_style, video_filename,
+                            music_filename, custom_css, access_pin, creator_ip, expires_at, metadata
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                        unique_id,
+                        experience_data.get('creator_name'),
+                        experience_data.get('recipient_name'),
+                        experience_data.get('creator_email'),
+                        experience_data.get('personal_message'),
+                        experience_data.get('memory_text'),
+                        experience_data.get('question_text'),
+                        experience_data.get('color_palette'),
+                        experience_data.get('background_style'),
+                        experience_data.get('video_filename'),
+                        experience_data.get('music_filename'),
+                        experience_data.get('custom_css'),
+                        access_pin,
+                        experience_data.get('creator_ip'),
+                        expires_at,
+                        json.dumps(experience_data.get('metadata', {}))
+                    ))
+                    conn.commit()
                 
             logger.info(f"Successfully created experience: {unique_id} with PIN: {access_pin}")
             return unique_id, access_pin
@@ -188,14 +272,22 @@ class DatabaseManager:
     def get_experience(self, unique_id):
         """Retrieve an experience by unique ID"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                conn.row_factory = sqlite3.Row
-                cursor = conn.execute('''
-                    SELECT * FROM valentine_experiences 
-                    WHERE unique_id = ? AND is_active = 1 AND expires_at > datetime('now')
-                ''', (unique_id,))
+            with self.get_connection() as conn:
+                if self.is_postgres:
+                    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                    cursor.execute('''
+                        SELECT * FROM valentine_experiences 
+                        WHERE unique_id = %s AND is_active = TRUE AND expires_at > NOW()
+                    ''', (unique_id,))
+                    experience = cursor.fetchone()
+                else:
+                    conn.row_factory = sqlite3.Row
+                    cursor = conn.execute('''
+                        SELECT * FROM valentine_experiences 
+                        WHERE unique_id = ? AND is_active = 1 AND expires_at > datetime('now')
+                    ''', (unique_id,))
+                    experience = cursor.fetchone()
                 
-                experience = cursor.fetchone()
                 if experience:
                     # Convert to dict and parse metadata
                     exp_dict = dict(experience)
@@ -211,21 +303,37 @@ class DatabaseManager:
     def increment_view_count(self, unique_id, viewer_ip, user_agent):
         """Increment view count and log the view"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                # Update view count
-                conn.execute('''
-                    UPDATE valentine_experiences 
-                    SET view_count = view_count + 1 
-                    WHERE unique_id = ?
-                ''', (unique_id,))
-                
-                # Log the view
-                conn.execute('''
-                    INSERT INTO experience_views (experience_id, viewer_ip, user_agent)
-                    VALUES (?, ?, ?)
-                ''', (unique_id, viewer_ip, user_agent))
-                
-                conn.commit()
+            with self.get_connection() as conn:
+                if self.is_postgres:
+                    cursor = conn.cursor()
+                    # Update view count
+                    cursor.execute('''
+                        UPDATE valentine_experiences 
+                        SET view_count = view_count + 1 
+                        WHERE unique_id = %s
+                    ''', (unique_id,))
+                    
+                    # Log the view
+                    cursor.execute('''
+                        INSERT INTO experience_views (experience_id, viewer_ip, user_agent)
+                        VALUES (%s, %s, %s)
+                    ''', (unique_id, viewer_ip, user_agent))
+                    conn.commit()
+                else:
+                    # Update view count
+                    conn.execute('''
+                        UPDATE valentine_experiences 
+                        SET view_count = view_count + 1 
+                        WHERE unique_id = ?
+                    ''', (unique_id,))
+                    
+                    # Log the view
+                    conn.execute('''
+                        INSERT INTO experience_views (experience_id, viewer_ip, user_agent)
+                        VALUES (?, ?, ?)
+                    ''', (unique_id, viewer_ip, user_agent))
+                    
+                    conn.commit()
                 
         except Exception as e:
             logger.error(f"Failed to increment view count for {unique_id}: {e}")
@@ -233,12 +341,20 @@ class DatabaseManager:
     def get_creator_experience_count(self, creator_ip):
         """Get number of experiences created by an IP"""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute('''
-                    SELECT COUNT(*) FROM valentine_experiences 
-                    WHERE creator_ip = ? AND created_at > datetime('now', '-1 day')
-                ''', (creator_ip,))
-                return cursor.fetchone()[0]
+            with self.get_connection() as conn:
+                if self.is_postgres:
+                    cursor = conn.cursor()
+                    cursor.execute('''
+                        SELECT COUNT(*) FROM valentine_experiences 
+                        WHERE creator_ip = %s AND created_at > NOW() - INTERVAL '1 day'
+                    ''', (creator_ip,))
+                    return cursor.fetchone()[0]
+                else:
+                    cursor = conn.execute('''
+                        SELECT COUNT(*) FROM valentine_experiences 
+                        WHERE creator_ip = ? AND created_at > datetime('now', '-1 day')
+                    ''', (creator_ip,))
+                    return cursor.fetchone()[0]
         except Exception as e:
             logger.error(f"Failed to get creator count: {e}")
             return 0
@@ -262,10 +378,16 @@ class DatabaseManager:
             
             # Check if ID already exists
             try:
-                with sqlite3.connect(self.db_path) as conn:
-                    cursor = conn.execute('SELECT id FROM valentine_experiences WHERE unique_id = ?', (unique_id,))
-                    if not cursor.fetchone():
-                        return unique_id
+                with self.get_connection() as conn:
+                    if self.is_postgres:
+                        cursor = conn.cursor()
+                        cursor.execute('SELECT id FROM valentine_experiences WHERE unique_id = %s', (unique_id,))
+                        if not cursor.fetchone():
+                            return unique_id
+                    else:
+                        cursor = conn.execute('SELECT id FROM valentine_experiences WHERE unique_id = ?', (unique_id,))
+                        if not cursor.fetchone():
+                            return unique_id
             except Exception:
                 continue
 
@@ -592,8 +714,13 @@ def health_check():
     """Health check endpoint for monitoring"""
     try:
         # Test database connection
-        with sqlite3.connect(app.config['DATABASE_URL']) as conn:
-            conn.execute('SELECT 1').fetchone()
+        with db_manager.get_connection() as conn:
+            if db_manager.is_postgres:
+                cursor = conn.cursor()
+                cursor.execute('SELECT 1')
+                cursor.fetchone()
+            else:
+                conn.execute('SELECT 1').fetchone()
         
         return jsonify({
             'status': 'healthy',
