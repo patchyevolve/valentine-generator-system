@@ -13,6 +13,12 @@ class ValentineGenerator {
         this.formData = new FormData();
         this.isSubmitting = false;
         
+        // Initialize enhancement managers
+        this.colorManager = new ColorGradientManager();
+        this.particleManager = new ParticleSystemManager();
+        this.svgManager = new SVGAnimationManager();
+        this.typographyManager = new TypographyManager();
+        
         this.init();
     }
     
@@ -23,6 +29,7 @@ class ValentineGenerator {
             this.cacheElements();
             this.setupEventListeners();
             this.setupFileUpload();
+            this.setupEnhancementSystems();
             this.updateProgress();
             
             console.log('✨ Generator initialized successfully');
@@ -199,6 +206,88 @@ class ValentineGenerator {
         });
         
         console.log('📁 File upload set up');
+    }
+    
+    setupEnhancementSystems() {
+        console.log('🎨 Setting up enhancement systems...');
+        
+        // Initialize font selector
+        const fontSelector = document.getElementById('font-selector');
+        if (fontSelector) {
+            this.typographyManager.createFontSelector(fontSelector, (fontKey, font) => {
+                console.log('Font selected:', fontKey, font.name);
+                this.selectedFont = fontKey;
+                this.previewFontChange(font);
+            });
+        }
+        
+        // Setup text effect previews
+        this.setupTextEffectPreviews();
+        
+        // Setup background preview system
+        this.setupBackgroundPreviews();
+        
+        console.log('✨ Enhancement systems ready');
+    }
+    
+    setupTextEffectPreviews() {
+        const effectOptions = document.querySelectorAll('input[name="text_effect"]');
+        effectOptions.forEach(option => {
+            option.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.previewTextEffect(e.target.value);
+                }
+            });
+        });
+    }
+    
+    setupBackgroundPreviews() {
+        const backgroundOptions = document.querySelectorAll('input[name="background_style"]');
+        backgroundOptions.forEach(option => {
+            option.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.previewBackground(e.target.value);
+                }
+            });
+        });
+    }
+    
+    previewFontChange(font) {
+        // Apply font to preview elements
+        const previewElements = document.querySelectorAll('.effect-preview, .step-title');
+        previewElements.forEach(element => {
+            element.style.fontFamily = font.family;
+        });
+    }
+    
+    previewTextEffect(effectType) {
+        const previewElements = document.querySelectorAll('.effect-preview');
+        previewElements.forEach(element => {
+            // Remove existing effect classes
+            element.classList.remove('text-glow', 'text-gradient', 'text-shadow');
+            
+            // Add new effect class
+            if (effectType !== 'none') {
+                element.classList.add(`text-${effectType}`);
+            }
+        });
+    }
+    
+    previewBackground(backgroundType) {
+        // Stop any existing background effects
+        this.particleManager.stopSystem();
+        this.svgManager.stopAnimation();
+        
+        // Start new background effect
+        const previewContainer = document.querySelector('.form-container');
+        if (!previewContainer) return;
+        
+        if (backgroundType.startsWith('svg_')) {
+            const animationType = backgroundType.replace('svg_', '');
+            this.svgManager.startAnimation(animationType, previewContainer, { count: 3 });
+        } else if (['hearts', 'stars', 'petals', 'fireflies', 'bubbles'].includes(backgroundType)) {
+            this.particleManager.startSystem(backgroundType, previewContainer, { count: 8 });
+        }
     }
     
     handleFileSelect(file) {

@@ -1034,3 +1034,360 @@ body {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* ===================================
+   ENHANCEMENT SYSTEM STYLES
+   =================================== */
+
+/* Font Selector Styles */
+.font-selector {
+    margin-top: var(--space-4);
+}
+
+.font-tabs {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.font-tab {
+    padding: var(--space-3) var(--space-4);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--gray-600);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.font-tab:hover {
+    color: var(--primary-pink);
+    background: rgba(255, 107, 157, 0.05);
+}
+
+.font-tab.active {
+    color: var(--primary-pink);
+    border-bottom-color: var(--primary-pink);
+    background: rgba(255, 107, 157, 0.1);
+}
+
+.fonts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-4);
+    max-height: 300px;
+    overflow-y: auto;
+    padding: var(--space-2);
+}
+
+.font-item {
+    padding: var(--space-4);
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.font-item:hover {
+    border-color: var(--primary-pink);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 157, 0.15);
+}
+
+.font-item.selected {
+    border-color: var(--primary-pink);
+    background: rgba(255, 107, 157, 0.05);
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+}
+
+.font-preview {
+    font-size: 1.2rem;
+    margin-bottom: var(--space-2);
+    color: var(--gray-800);
+    line-height: 1.4;
+}
+
+.font-info h4 {
+    margin: 0 0 var(--space-1) 0;
+    color: var(--gray-800);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.font-info p {
+    margin: 0;
+    color: var(--gray-600);
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+/* Text Effect Options */
+.effect-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.effect-option {
+    position: relative;
+}
+
+.effect-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.effect-label {
+    display: block;
+    padding: var(--space-4);
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    text-align: center;
+}
+
+.effect-label:hover {
+    border-color: var(--primary-pink);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 157, 0.15);
+}
+
+.effect-option input[type="radio"]:checked + .effect-label {
+    border-color: var(--primary-pink);
+    background: rgba(255, 107, 157, 0.05);
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+}
+
+.effect-preview {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+    color: var(--gray-800);
+}
+
+.effect-name {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+/* Text effect classes for previews */
+.text-glow {
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-pink), var(--secondary-pink), var(--blue-love));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Animation Options */
+.animation-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.animation-option {
+    position: relative;
+}
+
+.animation-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.animation-label {
+    display: block;
+    padding: var(--space-4);
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    text-align: center;
+}
+
+.animation-label:hover {
+    border-color: var(--primary-pink);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 157, 0.15);
+}
+
+.animation-option input[type="radio"]:checked + .animation-label {
+    border-color: var(--primary-pink);
+    background: rgba(255, 107, 157, 0.05);
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+}
+
+.animation-name {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+    color: var(--gray-800);
+}
+
+.animation-desc {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--gray-600);
+    line-height: 1.3;
+}
+
+/* Gradient Preview Styles */
+.gradient-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.gradient-tab {
+    padding: var(--space-2) var(--space-3);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--gray-600);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gradient-tab:hover {
+    color: var(--primary-pink);
+    background: rgba(255, 107, 157, 0.05);
+}
+
+.gradient-tab.active {
+    color: var(--primary-pink);
+    border-bottom-color: var(--primary-pink);
+    background: rgba(255, 107, 157, 0.1);
+}
+
+.gradients-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-3);
+    max-height: 250px;
+    overflow-y: auto;
+    padding: var(--space-2);
+}
+
+.gradient-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.gradient-item:hover {
+    border-color: var(--primary-pink);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 157, 0.15);
+}
+
+.gradient-item.selected {
+    border-color: var(--primary-pink);
+    background: rgba(255, 107, 157, 0.05);
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+}
+
+.gradient-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+}
+
+.gradient-info h4 {
+    margin: 0 0 var(--space-1) 0;
+    color: var(--gray-800);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.gradient-info p {
+    margin: 0;
+    color: var(--gray-600);
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+/* Responsive Design for Enhancement Systems */
+@media (max-width: 768px) {
+    .font-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .fonts-container,
+    .gradients-container {
+        grid-template-columns: 1fr;
+        max-height: 200px;
+    }
+    
+    .effect-options,
+    .animation-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .gradient-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .gradient-preview {
+        width: 80px;
+        height: 40px;
+    }
+}
+
+/* Loading states for enhancement systems */
+.enhancement-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    color: var(--gray-500);
+}
+
+.enhancement-loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gray-300);
+    border-top: 2px solid var(--primary-pink);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: var(--space-2);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

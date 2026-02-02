@@ -225,8 +225,9 @@ class DatabaseManager:
                             unique_id, creator_name, recipient_name, creator_email,
                             personal_message, memory_text, question_text,
                             color_palette, background_style, video_filename,
-                            music_filename, custom_css, access_pin, creator_ip, expires_at, metadata
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            music_filename, custom_css, access_pin, creator_ip, expires_at, metadata,
+                            font_style, text_effect, text_animation, particle_system, svg_animation
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ''', (
                         unique_id,
                         experience_data.get('creator_name'),
@@ -243,7 +244,12 @@ class DatabaseManager:
                         access_pin,
                         experience_data.get('creator_ip'),
                         expires_at,
-                        json.dumps(experience_data.get('metadata', {}))
+                        json.dumps(experience_data.get('metadata', {})),
+                        experience_data.get('font_style', 'sans_modern'),
+                        experience_data.get('text_effect', 'none'),
+                        experience_data.get('text_animation', 'fade_in'),
+                        experience_data.get('particle_system', 'none'),
+                        experience_data.get('svg_animation', 'none')
                     ))
                     conn.commit()
                 else:
@@ -252,8 +258,9 @@ class DatabaseManager:
                             unique_id, creator_name, recipient_name, creator_email,
                             personal_message, memory_text, question_text,
                             color_palette, background_style, video_filename,
-                            music_filename, custom_css, access_pin, creator_ip, expires_at, metadata
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            music_filename, custom_css, access_pin, creator_ip, expires_at, metadata,
+                            font_style, text_effect, text_animation, particle_system, svg_animation
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ''', (
                         unique_id,
                         experience_data.get('creator_name'),
@@ -270,7 +277,12 @@ class DatabaseManager:
                         access_pin,
                         experience_data.get('creator_ip'),
                         expires_at,
-                        json.dumps(experience_data.get('metadata', {}))
+                        json.dumps(experience_data.get('metadata', {})),
+                        experience_data.get('font_style', 'sans_modern'),
+                        experience_data.get('text_effect', 'none'),
+                        experience_data.get('text_animation', 'fade_in'),
+                        experience_data.get('particle_system', 'none'),
+                        experience_data.get('svg_animation', 'none')
                     ))
                     conn.commit()
                 
@@ -742,6 +754,12 @@ def create_experience():
             'custom_css': request.form.get('custom_css', '').strip(),
             'custom_pin': access_pin,  # Pass the custom PIN to the database manager
             'creator_ip': client_ip,
+            # NEW ENHANCEMENT FIELDS
+            'font_style': request.form.get('font_style', 'sans_modern'),
+            'text_effect': request.form.get('text_effect', 'none'),
+            'text_animation': request.form.get('text_animation', 'fade_in'),
+            'particle_system': request.form.get('particle_system', 'none'),
+            'svg_animation': request.form.get('svg_animation', 'none'),
             'metadata': {
                 'user_agent': request.headers.get('User-Agent', ''),
                 'created_from': 'web_form',

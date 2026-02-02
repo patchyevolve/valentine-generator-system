@@ -14,6 +14,12 @@ class ValentineExperience {
         this.isTransitioning = false;
         this.experienceData = window.EXPERIENCE_DATA || {};
         
+        // Initialize enhancement managers
+        this.colorManager = new ColorGradientManager();
+        this.particleManager = new ParticleSystemManager();
+        this.svgManager = new SVGAnimationManager();
+        this.typographyManager = new TypographyManager();
+        
         this.init();
     }
     
@@ -23,6 +29,7 @@ class ValentineExperience {
         try {
             this.cacheElements();
             this.setupEventListeners();
+            this.initializeEnhancements();
             this.startExperience();
             
             console.log('✨ Experience initialized successfully');
@@ -104,6 +111,99 @@ class ValentineExperience {
         this.setupScrollHandling();
         
         console.log('🎯 Event listeners set up');
+    }
+    
+    initializeEnhancements() {
+        console.log('🎨 Initializing enhancements...');
+        
+        // Apply font style
+        if (this.experienceData.font_style) {
+            this.applyFontStyle(this.experienceData.font_style);
+        }
+        
+        // Apply text effects
+        if (this.experienceData.text_effect && this.experienceData.text_effect !== 'none') {
+            this.applyTextEffect(this.experienceData.text_effect);
+        }
+        
+        // Initialize background effects
+        this.initializeBackgroundEffects();
+        
+        console.log('✨ Enhancements initialized');
+    }
+    
+    async applyFontStyle(fontKey) {
+        try {
+            const textElements = document.querySelectorAll('.message-text, .creator-name, .recipient-name, .question-text, .memory-text');
+            
+            await this.typographyManager.loadGoogleFont(fontKey);
+            
+            textElements.forEach(element => {
+                this.typographyManager.applyTypography(element, {
+                    fontKey: fontKey,
+                    animation: this.experienceData.text_animation || 'fade_in'
+                });
+            });
+            
+            console.log('🔤 Font style applied:', fontKey);
+        } catch (error) {
+            console.error('Font application error:', error);
+        }
+    }
+    
+    applyTextEffect(effectType) {
+        const textElements = document.querySelectorAll('.message-text, .question-text');
+        
+        textElements.forEach(element => {
+            element.classList.add(`text-${effectType}`);
+        });
+        
+        console.log('✨ Text effect applied:', effectType);
+    }
+    
+    initializeBackgroundEffects() {
+        const backgroundContainer = document.querySelector('.experience-container');
+        if (!backgroundContainer) return;
+        
+        const backgroundStyle = this.experienceData.background_style;
+        
+        // Handle particle systems
+        if (['hearts', 'stars', 'petals', 'fireflies', 'bubbles'].includes(backgroundStyle)) {
+            this.particleManager.startSystem(backgroundStyle, backgroundContainer, {
+                count: this.getParticleCount(backgroundStyle)
+            });
+        }
+        
+        // Handle SVG animations
+        if (backgroundStyle && backgroundStyle.startsWith('svg_')) {
+            const animationType = backgroundStyle.replace('svg_', '');
+            this.svgManager.startAnimation(animationType, backgroundContainer, {
+                count: this.getSVGCount(animationType)
+            });
+        }
+        
+        console.log('🎭 Background effects initialized:', backgroundStyle);
+    }
+    
+    getParticleCount(type) {
+        const counts = {
+            hearts: 12,
+            stars: 25,
+            petals: 15,
+            fireflies: 18,
+            bubbles: 10
+        };
+        return counts[type] || 15;
+    }
+    
+    getSVGCount(type) {
+        const counts = {
+            hearts: 6,
+            waves: 3,
+            shapes: 8,
+            nature: 5
+        };
+        return counts[type] || 6;
     }
     
     setupScrollHandling() {
