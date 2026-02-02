@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 A Valentine's Message for {{ experience.recipient_name }}</title>
+    <meta name="description" content="A personalized Valentine's Day experience from {{ experience.creator_name }}">
+    
+    <!-- SEO and Social Media -->
+    <meta property="og:title" content="💕 A Valentine's Message for {{ experience.recipient_name }}">
+    <meta property="og:description" content="{{ experience.creator_name }} has created something special for you">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/experience.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='js/experience.js') }}" as="script">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/experience.css') }}">
+    
+    <!-- Dynamic Theme Styles -->
+    <style>
+        :root {
+            --primary-color: {{ color_palette.primary }};
+            --secondary-color: {{ color_palette.secondary }};
+            --accent-color: {{ color_palette.accent }};
+            --background-gradient: {{ color_palette.background }};
+        }
+        
+        body {
+            background: var(--background-gradient);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        {% if experience.custom_css %}
+        /* Custom CSS from creator */
+        {{ experience.custom_css|safe }}
+        {% endif %}
+    </style>
+    
+    <!-- Meta tags -->
+    <meta name="theme-color" content="{{ color_palette.primary }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💕</text></svg>">
+</head>
+<body class="background-{{ experience.background_style }}">
+    <!-- Loading Screen -->
+    <div id="loading" class="state-container active">
+        <div class="loading-content">
+            <div class="heart-loader">
+                <div class="heart"></div>
+                <div class="heart"></div>
+                <div class="heart"></div>
+            </div>
+            <h1 class="loading-title">{{ experience.creator_name }} has something special for you</h1>
+            <p class="loading-subtitle">Preparing your Valentine's experience...</p>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome State -->
+    <div id="welcome" class="state-container">
+        <div class="welcome-content">
+            <h1 class="welcome-title">Hello, {{ experience.recipient_name }} 💕</h1>
+            <p class="welcome-subtitle">{{ experience.creator_name }} has created something beautiful for you</p>
+            <div class="interaction-hint">
+                <span class="hint-text">Click anywhere to begin this journey</span>
+                <div class="pulse-ring"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Message State -->
+    <div id="personal-message" class="state-container">
+        <div class="message-container">
+            <div class="message-frame">
+                <div class="message-header">
+                    <h2>A message from {{ experience.creator_name }}</h2>
+                </div>
+                <div id="message-display" class="message-text">
+                    {{ experience.personal_message }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory State (if provided) -->
+    {% if experience.memory_text %}
+    <div id="memory-reveal" class="state-container">
+        <div class="memory-container">
+            <div class="memory-frame">
+                <div class="memory-header">
+                    <h2>A Special Memory</h2>
+                </div>
+                <div id="memory-display" class="memory-text">
+                    {{ experience.memory_text }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Question State -->
+    <div id="question-state" class="state-container">
+        <div class="question-container">
+            <div class="question-frame">
+                <div id="question-display" class="question-text">
+                    {{ experience.question_text or ("Will you be my Valentine, " + experience.recipient_name + "?") }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decision State -->
+    <div id="decision-state" class="state-container">
+        <div class="decision-container">
+            <h2 class="decision-title">What does your heart say?</h2>
+            <div class="decision-buttons">
+                <button class="decision-btn yes-btn" data-choice="yes">
+                    <span class="btn-icon">💕</span>
+                    <span class="btn-text">Yes, I feel the same way</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <button class="decision-btn maybe-btn" data-choice="maybe">
+                    <span class="btn-icon">💭</span>
+                    <span class="btn-text">I need some time to think</span>
+                    <div class="btn-glow"></div>
+                </button>
+                <button class="decision-btn friends-btn" data-choice="friends">
+                    <span class="btn-icon">🤗</span>
+                    <span class="btn-text">I'd rather stay friends</span>
+                    <div class="btn-glow"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation State (Video or Celebration) -->
+    <div id="confirmation-state" class="state-container">
+        <div class="confirmation-container">
+            {% if experience.video_filename %}
+            <div class="video-container">
+                <div class="video-frame">
+                    <video id="valentine-video" class="main-video" autoplay muted preload="metadata">
+                        <source src="{{ url_for('serve_upload', filename=experience.video_filename) }}" type="video/mp4">
+                        <p class="video-fallback">Your browser doesn't support video playback, but our love is still real! ❤️</p>
+                    </video>
+                    <div id="video-overlay" class="video-overlay">
+                        <span class="love-message">I love you</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="celebration-container">
+                <div class="celebration-content">
+                    <h2 class="celebration-title">🎉 YES! 🎉</h2>
+                    <p class="celebration-message">You've made {{ experience.creator_name }} the happiest person in the world!</p>
+                    <p class="celebration-subtitle">This is the beginning of something beautiful ❤️</p>
+                    <div class="celebration-hearts">
+                        💕 Happy Valentine's Day! 💕
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Gentle Exit State -->
+    <div id="gentle-exit-state" class="state-container">
+        <div class="exit-container">
+            <div class="exit-content">
+                <h2 class="exit-title">Thank You</h2>
+                <div id="exit-message" class="exit-message">
+                    <p>Your honesty means the world to {{ experience.creator_name }}.</p>
+                    <p>Whatever you choose, you are valued and loved.</p>
+                </div>
+                <div class="gentle-hearts">
+                    <span class="gentle-heart">💙</span>
+                    <span class="gentle-heart">🤗</span>
+                    <span class="gentle-heart">✨</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div id="progress-indicator" class="progress-indicator">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- Screen reader announcements -->
+    <div aria-live="polite" aria-atomic="true" class="sr-only" id="announcements"></div>
+
+    <!-- Experience Data -->
+    <script>
+        window.EXPERIENCE_DATA = {
+            unique_id: '{{ unique_id }}',
+            creator_name: '{{ experience.creator_name }}',
+            recipient_name: '{{ experience.recipient_name }}',
+            has_memory: {{ 'true' if experience.memory_text else 'false' }},
+            has_video: {{ 'true' if experience.video_filename else 'false' }},
+            background_style: '{{ experience.background_style }}',
+            color_palette: '{{ experience.color_palette }}'
+        };
+    </script>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/experience.js') }}"></script>
+</body>
+</html>

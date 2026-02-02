@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 Valentine's Day Experience Generator</title>
+    <meta name="description" content="Create personalized, romantic Valentine's Day experiences to share with your loved ones">
+    
+    <!-- SEO and Social Media -->
+    <meta property="og:title" content="Valentine's Day Experience Generator">
+    <meta property="og:description" content="Create beautiful, personalized Valentine's Day experiences">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/generator.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='js/generator.js') }}" as="script">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/generator.css') }}">
+    
+    <!-- Meta tags -->
+    <meta name="theme-color" content="#ff6b9d">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💕</text></svg>">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">💕 Valentine Generator</h1>
+                <p class="tagline">Create magical Valentine's Day experiences</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h2 class="hero-title">Create Your Perfect Valentine's Day Experience</h2>
+                    <p class="hero-description">
+                        Design a personalized, romantic journey for your special someone. 
+                        Add your own message, choose beautiful themes, upload a video, and get a unique link to share.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Creation Form -->
+            <section class="form-section">
+                <div class="form-container">
+                    <form id="valentine-form" class="valentine-form" enctype="multipart/form-data">
+                        <!-- Step 1: Basic Information -->
+                        <div class="form-step active" data-step="1">
+                            <div class="step-header">
+                                <h3 class="step-title">Step 1: Tell Us About You</h3>
+                                <p class="step-description">Let's start with the basics</p>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="creator_name" class="form-label">Your Name *</label>
+                                    <input type="text" id="creator_name" name="creator_name" class="form-input" required 
+                                           placeholder="Enter your name">
+                                    <div class="form-help">This is how you'll be identified in the experience</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="recipient_name" class="form-label">Their Name *</label>
+                                    <input type="text" id="recipient_name" name="recipient_name" class="form-input" required 
+                                           placeholder="Enter their name">
+                                    <div class="form-help">The person you're creating this for</div>
+                                </div>
+                                
+                                <div class="form-group full-width">
+                                    <label for="creator_email" class="form-label">Your Email (Optional)</label>
+                                    <input type="email" id="creator_email" name="creator_email" class="form-input" 
+                                           placeholder="your@email.com">
+                                    <div class="form-help">We'll send you the link and stats (optional)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Personal Message -->
+                        <div class="form-step" data-step="2">
+                            <div class="step-header">
+                                <h3 class="step-title">Step 2: Your Personal Message</h3>
+                                <p class="step-description">Share what's in your heart</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="personal_message" class="form-label">Your Love Message *</label>
+                                <textarea id="personal_message" name="personal_message" class="form-textarea" required 
+                                          rows="4" placeholder="Write your heartfelt message here..."></textarea>
+                                <div class="form-help">This will be the main message in your Valentine's experience</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="memory_text" class="form-label">Special Memory (Optional)</label>
+                                <textarea id="memory_text" name="memory_text" class="form-textarea" 
+                                          rows="3" placeholder="Share a special memory you both cherish..."></textarea>
+                                <div class="form-help">A beautiful memory that will be revealed during the experience</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="question_text" class="form-label">Your Question (Optional)</label>
+                                <input type="text" id="question_text" name="question_text" class="form-input" 
+                                       placeholder="Will you be my Valentine?">
+                                <div class="form-help">The question you want to ask (defaults to "Will you be my Valentine?")</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Visual Design -->
+                        <div class="form-step" data-step="3">
+                            <div class="step-header">
+                                <h3 class="step-title">Step 3: Choose Your Style</h3>
+                                <p class="step-description">Make it uniquely yours</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Color Palette *</label>
+                                <div class="color-palette-grid">
+                                    {% for palette_id, palette in color_palettes.items() %}
+                                    <div class="color-palette-option">
+                                        <input type="radio" id="palette_{{ palette_id }}" name="color_palette" 
+                                               value="{{ palette_id }}" {% if loop.first %}checked{% endif %}>
+                                        <label for="palette_{{ palette_id }}" class="palette-label">
+                                            <div class="palette-preview" style="background: {{ palette.background }}"></div>
+                                            <div class="palette-info">
+                                                <h4 class="palette-name">{{ palette.name }}</h4>
+                                                <p class="palette-description">{{ palette.description }}</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Background Style</label>
+                                <div class="background-style-grid">
+                                    {% for style_id, style in background_styles.items() %}
+                                    <div class="background-style-option">
+                                        <input type="radio" id="bg_{{ style_id }}" name="background_style" 
+                                               value="{{ style_id }}" {% if loop.first %}checked{% endif %}>
+                                        <label for="bg_{{ style_id }}" class="style-label">
+                                            <div class="style-preview style-{{ style_id }}"></div>
+                                            <div class="style-info">
+                                                <h4 class="style-name">{{ style.name }}</h4>
+                                                <p class="style-description">{{ style.description }}</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Security & Media -->
+                        <div class="form-step" data-step="4">
+                            <div class="step-header">
+                                <h3 class="step-title">Step 4: Security & Media</h3>
+                                <p class="step-description">Set your privacy PIN and add optional media</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="custom_pin" class="form-label">🔐 Custom Access PIN</label>
+                                <input type="text" id="custom_pin" name="custom_pin" class="form-input pin-input" 
+                                       placeholder="Enter 4-6 digits" maxlength="6" pattern="[0-9]{4,6}" required>
+                                <div class="form-help">
+                                    Create your own 4-6 digit PIN for privacy protection. Only people with this PIN can view your experience.
+                                    <br><small>💡 Tip: Use a memorable number like a special date (without year) or your favorite number!</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="video_file" class="form-label">Upload Video (Optional)</label>
+                                <div class="file-upload-area" id="video-upload-area">
+                                    <input type="file" id="video_file" name="video_file" class="file-input" 
+                                           accept="video/*">
+                                    <div class="upload-content">
+                                        <div class="upload-icon">🎬</div>
+                                        <p class="upload-text">Click to upload or drag and drop</p>
+                                        <p class="upload-help">MP4, MOV, AVI up to 100MB</p>
+                                    </div>
+                                </div>
+                                <div class="form-help">Your video will play when they say "Yes" to your question</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="custom_css" class="form-label">Custom Styling (Advanced)</label>
+                                <textarea id="custom_css" name="custom_css" class="form-textarea code-input" 
+                                          rows="4" placeholder="/* Add custom CSS here */"></textarea>
+                                <div class="form-help">Advanced users can add custom CSS to further personalize the experience</div>
+                            </div>
+                        </div>
+
+                        <!-- Form Navigation -->
+                        <div class="form-navigation">
+                            <button type="button" class="btn btn-secondary" id="prev-btn" style="display: none;">
+                                ← Previous
+                            </button>
+                            <button type="button" class="btn btn-primary" id="next-btn">
+                                Next →
+                            </button>
+                            <button type="submit" class="btn btn-success" id="create-btn" style="display: none;">
+                                ✨ Create Experience
+                            </button>
+                        </div>
+
+                        <!-- Progress Indicator -->
+                        <div class="progress-indicator">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 25%"></div>
+                            </div>
+                            <div class="progress-steps">
+                                <div class="progress-step active">1</div>
+                                <div class="progress-step">2</div>
+                                <div class="progress-step">3</div>
+                                <div class="progress-step">4</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Success Modal -->
+            <div class="modal" id="success-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">🎉 Your Valentine's Experience is Ready!</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p class="success-message">Your personalized Valentine's Day experience has been created successfully!</p>
+                        
+                        <div class="share-section">
+                            <label class="form-label">Share this link with your special someone:</label>
+                            <div class="share-link-container">
+                                <input type="text" id="share-link" class="share-link-input" readonly>
+                                <button type="button" class="btn btn-primary" id="copy-link-btn">
+                                    📋 Copy Link
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="pin-section">
+                            <label class="form-label">🔐 Access PIN (Required to view):</label>
+                            <div class="pin-display-container">
+                                <input type="text" id="access-pin" class="pin-display-input" readonly>
+                                <button type="button" class="btn btn-secondary" id="copy-pin-btn">
+                                    📋 Copy PIN
+                                </button>
+                            </div>
+                            <div class="pin-help">
+                                Share this 4-digit PIN along with the link for privacy protection
+                            </div>
+                        </div>
+                        
+                        <div class="share-options">
+                            <h4>Share via:</h4>
+                            <div class="share-buttons">
+                                <button type="button" class="share-btn whatsapp-btn" id="share-whatsapp">
+                                    💬 WhatsApp
+                                </button>
+                                <button type="button" class="share-btn email-btn" id="share-email">
+                                    📧 Email
+                                </button>
+                                <button type="button" class="share-btn sms-btn" id="share-sms">
+                                    💌 SMS
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="experience-info">
+                            <p><strong>Experience ID:</strong> <span id="experience-id"></span></p>
+                            <p><strong>Created for:</strong> <span id="recipient-name-display"></span></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="create-another-btn">
+                            Create Another
+                        </button>
+                        <button type="button" class="btn btn-primary" id="view-experience-btn">
+                            View Experience
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="loading-content">
+                    <div class="loading-spinner"></div>
+                    <h3 class="loading-title">Creating Your Valentine's Experience...</h3>
+                    <p class="loading-text">Adding some magic ✨</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2026 Valentine's Day Experience Generator. Made with 💕</p>
+                <p>Create beautiful memories, one experience at a time.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/generator.js') }}"></script>
+</body>
+</html>

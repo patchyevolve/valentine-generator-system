@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 Enter PIN - Valentine's Experience</title>
+    <meta name="description" content="Enter your PIN to access this Valentine's Day experience">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Meta tags -->
+    <meta name="theme-color" content="#ff6b9d">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💕</text></svg>">
+    
+    <style>
+        :root {
+            --primary-pink: #ff6b9d;
+            --secondary-pink: #fd79a8;
+            --accent-coral: #ff7675;
+            --warm-orange: #fd79a8;
+            --golden-yellow: #fdcb6e;
+            --purple-dream: #a29bfe;
+            --blue-love: #74b9ff;
+            --green-heart: #00b894;
+            
+            --white: #ffffff;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-display: 'Playfair Display', Georgia, serif;
+            
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: linear-gradient(135deg, #ff6b9d 0%, #fd79a8 25%, #fdcb6e 50%, #a29bfe 75%, #74b9ff 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .pin-container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px) saturate(200%);
+            border-radius: 32px;
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-2xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pin-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            border-radius: 32px;
+        }
+
+        .pin-header {
+            position: relative;
+            z-index: 10;
+            margin-bottom: 2rem;
+        }
+
+        .pin-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: heartBeat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .pin-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .pin-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .pin-form {
+            position: relative;
+            z-index: 10;
+        }
+
+        .pin-input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .pin-input {
+            width: 100%;
+            max-width: 200px;
+            padding: 1rem;
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            color: white;
+            font-family: var(--font-primary);
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .pin-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+        }
+
+        .pin-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.2rem;
+        }
+
+        .pin-submit {
+            background: linear-gradient(135deg, var(--primary-pink), var(--secondary-pink));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            min-width: 150px;
+        }
+
+        .pin-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+            background: linear-gradient(135deg, var(--secondary-pink), var(--primary-pink));
+        }
+
+        .pin-submit:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .pin-help {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .pin-help-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .pin-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .pin-title {
+                font-size: 2rem;
+            }
+
+            .pin-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .pin-input {
+                font-size: 1.8rem;
+                letter-spacing: 0.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pin-container {
+                padding: 1.5rem;
+            }
+
+            .pin-title {
+                font-size: 1.8rem;
+            }
+
+            .pin-input {
+                font-size: 1.6rem;
+                letter-spacing: 0.2rem;
+                max-width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pin-container">
+        <div class="pin-header">
+            <div class="pin-icon">🔐</div>
+            <h1 class="pin-title">Enter PIN</h1>
+            <p class="pin-subtitle">This Valentine's experience is protected</p>
+        </div>
+
+        {% if error %}
+        <div class="error-message">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        <form class="pin-form" method="GET" action="{{ url_for('view_experience', unique_id=unique_id) }}">
+            <div class="pin-input-group">
+                <input 
+                    type="text" 
+                    name="pin" 
+                    class="pin-input" 
+                    placeholder="0000"
+                    maxlength="4"
+                    pattern="[0-9]{4}"
+                    required
+                    autofocus
+                    autocomplete="off"
+                    inputmode="numeric"
+                >
+            </div>
+            
+            <button type="submit" class="pin-submit">
+                💕 View Experience
+            </button>
+        </form>
+
+        <div class="pin-help">
+            <p class="pin-help-text">
+                Enter the 4-digit PIN that was shared with you to access this Valentine's Day experience.
+            </p>
+            
+            <div class="security-note">
+                <span>🛡️</span>
+                <span>Your privacy is protected</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-format PIN input
+        const pinInput = document.querySelector('.pin-input');
+        
+        pinInput.addEventListener('input', function(e) {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Auto-submit when 4 digits are entered
+            if (this.value.length === 4) {
+                setTimeout(() => {
+                    this.form.submit();
+                }, 500);
+            }
+        });
+
+        // Focus on input when page loads
+        window.addEventListener('load', () => {
+            pinInput.focus();
+        });
+    </script>
+</body>
+</html>
