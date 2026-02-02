@@ -46,7 +46,7 @@ app.config.update(
     DATABASE_URL=os.environ.get('DATABASE_URL', 'valentine_experiences.db'),
     UPLOAD_FOLDER='uploads',
     ALLOWED_EXTENSIONS={'mp4', 'mov', 'avi', 'mkv', 'webm'},
-    MAX_EXPERIENCES_PER_IP=25,  # More reasonable rate limiting - allows multiple experiences
+    MAX_EXPERIENCES_PER_IP=100,  # Increased for testing
     EXPERIENCE_EXPIRY_DAYS=365  # Experiences expire after 1 year
 )
 
@@ -177,6 +177,21 @@ class DatabaseManager:
                             WHERE access_pin IS NULL
                         ''')
                         logger.info("Updated existing experiences with random PINs")
+                    
+                    # Add new enhancement columns if they don't exist
+                    enhancement_columns = [
+                        ('font_style', 'TEXT DEFAULT "sans_modern"'),
+                        ('text_effect', 'TEXT DEFAULT "none"'),
+                        ('text_animation', 'TEXT DEFAULT "fade_in"'),
+                        ('particle_system', 'TEXT DEFAULT "none"'),
+                        ('svg_animation', 'TEXT DEFAULT "none"')
+                    ]
+                    
+                    for col_name, col_definition in enhancement_columns:
+                        if col_name not in columns:
+                            logger.info(f"Adding {col_name} column to existing database")
+                            conn.execute(f'ALTER TABLE valentine_experiences ADD COLUMN {col_name} {col_definition}')
+                            logger.info(f"Added {col_name} column successfully")
                     
                     conn.execute('''
                         CREATE TABLE IF NOT EXISTS experience_views (

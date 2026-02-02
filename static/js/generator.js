@@ -68,7 +68,8 @@ class ValentineGenerator {
             1: ['creator_name', 'recipient_name'],
             2: ['personal_message'],
             3: ['color_palette'],
-            4: ['custom_pin']
+            4: [], // No required fields for step 4 (custom_pin is optional)
+            5: []  // No required fields for step 5 (all enhancement options are optional)
         };
         
         console.log('📋 Elements cached successfully');
@@ -250,6 +251,16 @@ class ValentineGenerator {
                 }
             });
         });
+        
+        // Also setup preview for existing background options in step 3
+        const existingBackgroundOptions = document.querySelectorAll('input[name="background_style"]');
+        existingBackgroundOptions.forEach(option => {
+            option.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.previewBackground(e.target.value);
+                }
+            });
+        });
     }
     
     previewFontChange(font) {
@@ -278,15 +289,44 @@ class ValentineGenerator {
         this.particleManager.stopSystem();
         this.svgManager.stopAnimation();
         
-        // Start new background effect
-        const previewContainer = document.querySelector('.form-container');
-        if (!previewContainer) return;
+        // Find a suitable container for preview
+        let previewContainer = document.querySelector('.form-container');
+        if (!previewContainer) {
+            previewContainer = document.querySelector('.container');
+        }
+        if (!previewContainer) {
+            previewContainer = document.body;
+        }
         
-        if (backgroundType.startsWith('svg_')) {
-            const animationType = backgroundType.replace('svg_', '');
-            this.svgManager.startAnimation(animationType, previewContainer, { count: 3 });
-        } else if (['hearts', 'stars', 'petals', 'fireflies', 'bubbles'].includes(backgroundType)) {
-            this.particleManager.startSystem(backgroundType, previewContainer, { count: 8 });
+        console.log('🎭 Previewing background:', backgroundType);
+        
+        // Start new background effect based on type
+        if (backgroundType === 'hearts') {
+            this.particleManager.startSystem('hearts', previewContainer, { count: 8 });
+        } else if (backgroundType === 'stars') {
+            this.particleManager.startSystem('stars', previewContainer, { count: 15 });
+        } else if (backgroundType === 'petals') {
+            this.particleManager.startSystem('petals', previewContainer, { count: 10 });
+        } else if (backgroundType === 'fireflies') {
+            this.particleManager.startSystem('fireflies', previewContainer, { count: 12 });
+        } else if (backgroundType === 'bubbles') {
+            this.particleManager.startSystem('bubbles', previewContainer, { count: 6 });
+        } else if (backgroundType === 'svg_hearts') {
+            this.svgManager.startAnimation('hearts', previewContainer, { count: 4 });
+        } else if (backgroundType === 'svg_waves') {
+            this.svgManager.startAnimation('waves', previewContainer, { count: 2 });
+        } else if (backgroundType === 'svg_shapes') {
+            this.svgManager.startAnimation('shapes', previewContainer, { count: 6 });
+        } else if (backgroundType === 'svg_nature') {
+            this.svgManager.startAnimation('nature', previewContainer, { count: 4 });
+        }
+        
+        // Add a subtle indicator that preview is active
+        if (previewContainer) {
+            previewContainer.classList.add('background-preview-active');
+            setTimeout(() => {
+                previewContainer.classList.remove('background-preview-active');
+            }, 3000);
         }
     }
     
