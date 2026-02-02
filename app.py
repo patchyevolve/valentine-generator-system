@@ -918,6 +918,15 @@ def health_check():
             'error': str(e)
         }), 500
 
+@app.route('/test-particles')
+def test_particles():
+    """Test page for particle systems"""
+    try:
+        with open('test_particles.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except Exception as e:
+        return f"Error loading test page: {str(e)}", 500
+
 if __name__ == '__main__':
     try:
         logger.info("Starting Valentine's Day Experience Generator")

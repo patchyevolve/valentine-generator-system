@@ -322,30 +322,49 @@ class ParticleSystemManager {
      * Start particle system
      */
     startSystem(type, container, options = {}) {
+        console.log('🎆 ParticleSystemManager.startSystem called:', { type, container: container?.tagName, options });
+        
         this.stopSystem();
+        
+        if (!container) {
+            console.error('❌ No container provided to startSystem');
+            return;
+        }
         
         let system;
         switch (type) {
             case 'hearts':
+                console.log('💖 Creating heart rain system...');
                 system = this.createHeartRain(container, options);
                 break;
             case 'stars':
+                console.log('⭐ Creating starfield system...');
                 system = this.createStarfield(container, options);
                 break;
             case 'petals':
+                console.log('🌸 Creating rose petals system...');
                 system = this.createRosePetals(container, options);
                 break;
             case 'fireflies':
+                console.log('✨ Creating fireflies system...');
                 system = this.createFireflies(container, options);
                 break;
             case 'bubbles':
+                console.log('🫧 Creating bubbles system...');
                 system = this.createBubbles(container, options);
                 break;
             default:
+                console.warn('⚠️ Unknown particle system type:', type);
                 return;
         }
         
+        if (!system) {
+            console.error('❌ Failed to create particle system');
+            return;
+        }
+        
         this.activeSystem = system;
+        console.log('✅ Particle system created, particles:', system.particles?.length || 0);
         
         if (system.update) {
             const animate = () => {
@@ -353,6 +372,7 @@ class ParticleSystemManager {
                 this.animationFrame = requestAnimationFrame(animate);
             };
             animate();
+            console.log('🔄 Animation loop started');
         }
     }
 
