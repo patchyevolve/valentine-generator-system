@@ -1,6 +1,9 @@
 /**
  * Advanced Particle Systems Module
  * Modular particle effects for enhanced backgrounds
+ * 
+ * @author patchyevole
+ * @github https://github.com/patchyevolve
  */
 
 class ParticleSystemManager {

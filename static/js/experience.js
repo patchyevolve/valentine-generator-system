@@ -1,6 +1,9 @@
 /**
  * Valentine's Day Experience - Interactive JavaScript
  * Handles the complete Valentine's experience flow with smooth transitions
+ * 
+ * @author patchyevole
+ * @github https://github.com/patchyevolve
  */
 
 class ValentineExperience {

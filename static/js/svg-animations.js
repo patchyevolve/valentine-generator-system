@@ -1,6 +1,9 @@
 /**
  * SVG Animation System Module
  * Modular SVG-based background animations
+ * 
+ * @author patchyevole
+ * @github https://github.com/patchyevolve
  */
 
 class SVGAnimationManager {

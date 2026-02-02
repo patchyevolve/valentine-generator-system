@@ -1,6 +1,9 @@
 /**
  * Valentine's Day Experience Generator - Professional JavaScript
  * Handles form validation, step navigation, file uploads, and experience creation
+ * 
+ * @author patchyevole
+ * @github https://github.com/patchyevolve
  */
 
 class ValentineGenerator {

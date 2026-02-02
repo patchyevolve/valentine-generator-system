@@ -2,6 +2,9 @@
 """
 Valentine's Day Experience Generator - Production Ready Platform
 A professional web application for creating personalized Valentine's Day experiences
+
+@author patchyevole
+@github https://github.com/patchyevolve
 """
 
 import os

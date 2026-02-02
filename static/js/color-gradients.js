@@ -1,6 +1,9 @@
 /**
  * Enhanced Color Gradients Module
  * Modular system for managing expanded color palettes
+ * 
+ * @author patchyevole
+ * @github https://github.com/patchyevolve
  */
 
 class ColorGradientManager {

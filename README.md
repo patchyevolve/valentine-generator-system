@@ -300,7 +300,11 @@ This project is created for educational and personal use. Feel free to modify an
 
 ## 💖 Credits
 
-Created with love for Valentine's Day 2026. Made possible by:
+**Created by patchyevole**
+- GitHub: [patchyevolve](https://github.com/patchyevolve)
+- Created with love for Valentine's Day 2026
+
+**Made possible by:**
 - Flask web framework
 - SQLite database
 - Modern CSS and JavaScript

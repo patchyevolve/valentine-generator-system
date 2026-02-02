@@ -1,6 +1,9 @@
 /**
  * Typography Manager Module
  * Modular font and text styling system
+ * 
+ * @author patchyevole
+ * @github https://github.com/patchyevolve
  */
 
 class TypographyManager {
