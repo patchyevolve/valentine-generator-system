@@ -9,8 +9,6 @@ A professional web application for creating personalized Valentine's Day experie
 
 import os
 import sqlite3
-import psycopg2
-import psycopg2.extras
 import secrets
 import string
 import logging
@@ -18,6 +16,7 @@ import mimetypes
 from datetime import datetime, timedelta
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, abort
+
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.utils import secure_filename
 import traceback
@@ -25,16 +24,26 @@ import hashlib
 import json
 from urllib.parse import urlparse
 
-# Configure comprehensive logging
+# Configure comprehensive logging first
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('valentine_generator.log'),
-        logging.StreamHandler()
+        logging.StreamHandler(),
+        logging.FileHandler('valentine_generator.log')
     ]
 )
 logger = logging.getLogger(__name__)
+
+# Conditional PostgreSQL import for production deployment
+try:
+    import psycopg2
+    import psycopg2.extras
+    POSTGRES_AVAILABLE = True
+    logger.info("PostgreSQL driver loaded successfully")
+except ImportError as e:
+    POSTGRES_AVAILABLE = False
+    logger.warning(f"PostgreSQL driver not available: {e}. Using SQLite only.")
 
 # Initialize Flask app with production configuration
 app = Flask(__name__)
@@ -66,11 +75,14 @@ class DatabaseManager:
     def __init__(self, db_url):
         self.db_url = db_url
         self.is_postgres = db_url.startswith('postgresql://') or db_url.startswith('postgres://')
+        logger.info(f"Initializing database: {'PostgreSQL' if self.is_postgres else 'SQLite'}")
         self.init_database()
     
     def get_connection(self):
         """Get database connection based on database type"""
         if self.is_postgres:
+            if not POSTGRES_AVAILABLE:
+                raise ImportError("PostgreSQL driver not available. Please install psycopg2-binary.")
             return psycopg2.connect(self.db_url)
         else:
             return sqlite3.connect(self.db_url)
@@ -431,8 +443,19 @@ class DatabaseManager:
             except Exception:
                 continue
 
-# Initialize database manager
-db_manager = DatabaseManager(app.config['DATABASE_URL'])
+# Initialize database manager with error handling
+try:
+    db_manager = DatabaseManager(app.config['DATABASE_URL'])
+    logger.info("Database initialized successfully")
+except Exception as e:
+    logger.error(f"Database initialization failed: {e}")
+    # Fallback to SQLite if PostgreSQL fails
+    if 'postgresql' in app.config['DATABASE_URL'].lower():
+        logger.info("Falling back to SQLite database")
+        app.config['DATABASE_URL'] = 'valentine_experiences.db'
+        db_manager = DatabaseManager(app.config['DATABASE_URL'])
+    else:
+        raise
 
 # Color palettes and themes
 COLOR_PALETTES = {
