@@ -14,25 +14,24 @@ class ValentineExperience {
         this.isTransitioning = false;
         this.experienceData = window.EXPERIENCE_DATA || {};
         
-        // Initialize enhancement managers
-        this.colorManager = new ColorGradientManager();
-        this.particleManager = new ParticleSystemManager();
-        this.svgManager = new SVGAnimationManager();
-        this.typographyManager = new TypographyManager();
+        // Initialize enhancement managers (with fallbacks)
+        this.colorManager = window.ColorGradientManager ? new ColorGradientManager() : null;
+        this.particleManager = window.ParticleSystemManager ? new ParticleSystemManager() : null;
+        this.svgManager = window.SVGAnimationManager ? new SVGAnimationManager() : null;
+        this.typographyManager = window.TypographyManager ? new TypographyManager() : null;
         
         this.init();
     }
     
     init() {
-        console.log('💕 Initializing Valentine Experience...');
-        
         try {
             this.cacheElements();
             this.setupEventListeners();
-            this.initializeEnhancements();
-            this.startExperience();
             
-            console.log('✨ Experience initialized successfully');
+            // Initialize enhancements immediately
+            this.initializeEnhancements();
+            
+            this.startExperience();
         } catch (error) {
             console.error('💔 Experience initialization failed:', error);
             this.handleError('Failed to load the experience. Please refresh the page.');
@@ -63,8 +62,6 @@ class ValentineExperience {
         this.availableStates = Object.keys(this.stateContainers).filter(state => 
             this.stateContainers[state] !== null
         );
-        
-        console.log('📋 Elements cached, available states:', this.availableStates);
     }
     
     setupEventListeners() {
@@ -89,7 +86,7 @@ class ValentineExperience {
         // Video events
         if (this.video) {
             this.video.addEventListener('loadedmetadata', () => {
-                console.log('📹 Video loaded successfully');
+                // Video loaded successfully
             });
             
             this.video.addEventListener('ended', () => {
@@ -109,15 +106,26 @@ class ValentineExperience {
         
         // Scroll handling for message states
         this.setupScrollHandling();
-        
-        console.log('🎯 Event listeners set up');
     }
     
     initializeEnhancements() {
-        console.log('🎨 Initializing enhancements...');
+        // Apply enhancements immediately
+        this.applyAllEnhancements();
         
+        // Apply again after DOM is fully ready
+        setTimeout(() => {
+            this.applyAllEnhancements();
+        }, 500);
+        
+        // Apply once more after a longer delay for any late-loading elements
+        setTimeout(() => {
+            this.applyAllEnhancements();
+        }, 2000);
+    }
+    
+    applyAllEnhancements() {
         // Apply font style
-        if (this.experienceData.font_style) {
+        if (this.experienceData.font_style && this.experienceData.font_style !== 'sans_modern') {
             this.applyFontStyle(this.experienceData.font_style);
         }
         
@@ -126,74 +134,154 @@ class ValentineExperience {
             this.applyTextEffect(this.experienceData.text_effect);
         }
         
+        // Apply text animations
+        if (this.experienceData.text_animation && this.experienceData.text_animation !== 'fade_in') {
+            this.applyTextAnimation(this.experienceData.text_animation);
+        }
+        
         // Initialize background effects
         this.initializeBackgroundEffects();
-        
-        console.log('✨ Enhancements initialized');
     }
     
     async applyFontStyle(fontKey) {
         try {
-            const textElements = document.querySelectorAll('.message-text, .creator-name, .recipient-name, .question-text, .memory-text');
+            if (!this.typographyManager) {
+                console.error('❌ TypographyManager not available');
+                return;
+            }
             
-            await this.typographyManager.loadGoogleFont(fontKey);
+            const textElements = document.querySelectorAll('.welcome-title, .welcome-subtitle, .message-text, .question-text, .memory-text, .loading-title, .loading-subtitle, .celebration-title, .celebration-message, .exit-title, .exit-message');
             
-            textElements.forEach(element => {
-                this.typographyManager.applyTypography(element, {
-                    fontKey: fontKey,
-                    animation: this.experienceData.text_animation || 'fade_in'
-                });
+            // Get font configuration
+            const fontConfig = this.typographyManager.getFontConfig(fontKey);
+            if (!fontConfig) {
+                console.warn('⚠️ Font config not found for:', fontKey);
+                return;
+            }
+            
+            // Apply font family to elements immediately with fallbacks
+            textElements.forEach((element, index) => {
+                element.style.fontFamily = fontConfig.family;
+                element.style.fontWeight = fontConfig.weight || '400';
+                element.style.fontDisplay = 'swap'; // Better font loading
             });
             
-            console.log('🔤 Font style applied:', fontKey);
+            // Try to load Google Font if available (non-blocking)
+            if (fontConfig.googleFont) {
+                try {
+                    await this.typographyManager.loadGoogleFont(fontKey);
+                    // Re-apply after loading to ensure proper rendering
+                    textElements.forEach(element => {
+                        element.style.fontFamily = fontConfig.family;
+                    });
+                } catch (error) {
+                    console.warn('⚠️ Google Font loading failed, using fallback:', error);
+                }
+            }
         } catch (error) {
-            console.error('Font application error:', error);
+            console.error('❌ Font application error:', error);
         }
     }
     
     applyTextEffect(effectType) {
-        const textElements = document.querySelectorAll('.message-text, .question-text');
+        const textElements = document.querySelectorAll('.message-text, .question-text, .memory-text, .welcome-title, .celebration-title, .celebration-message');
         
-        textElements.forEach(element => {
-            element.classList.add(`text-${effectType}`);
+        textElements.forEach((element, index) => {
+            // Remove existing effect classes
+            element.classList.remove('text-glow', 'text-gradient', 'text-shadow', 'text-outline', 'text-emboss', 'text-neon');
+            
+            // Add new effect class
+            if (effectType !== 'none') {
+                element.classList.add(`text-${effectType}`);
+            }
         });
+    }
+    
+    applyTextAnimation(animationType) {
+        const textElements = document.querySelectorAll('.message-text, .question-text, .memory-text, .welcome-title, .celebration-title, .celebration-message');
         
-        console.log('✨ Text effect applied:', effectType);
+        textElements.forEach((element, index) => {
+            // Remove existing animation classes
+            element.classList.remove('anim-typewriter', 'anim-bounce', 'anim-wave', 'anim-fade_in', 'anim-slide_up', 'anim-glow');
+            
+            // Add new animation class
+            if (animationType !== 'fade_in') {
+                element.classList.add(`anim-${animationType}`);
+            }
+        });
     }
     
     initializeBackgroundEffects() {
-        const backgroundContainer = document.querySelector('.experience-container');
-        if (!backgroundContainer) return;
-        
+        // Use body as the main container for background effects
+        const backgroundContainer = document.body;
         const backgroundStyle = this.experienceData.background_style;
         
-        // Handle particle systems
+        if (!backgroundStyle || backgroundStyle === 'minimal' || backgroundStyle === 'cloudy') {
+            return;
+        }
+        
+        // Clear any existing effects first
+        this.clearBackgroundEffects();
+        
+        // Handle particle systems with enhanced continuous mode
         if (['hearts', 'stars', 'petals', 'fireflies', 'bubbles'].includes(backgroundStyle)) {
-            this.particleManager.startSystem(backgroundStyle, backgroundContainer, {
-                count: this.getParticleCount(backgroundStyle)
-            });
+            if (this.particleManager) {
+                const particleCount = this.getParticleCount(backgroundStyle);
+                try {
+                    this.particleManager.startSystem(backgroundStyle, backgroundContainer, {
+                        count: particleCount,
+                        speed: 1.2,
+                        size: 18
+                    });
+                } catch (error) {
+                    console.error('❌ Particle system failed:', error);
+                }
+            } else {
+                console.error('❌ ParticleSystemManager not available');
+            }
         }
         
         // Handle SVG animations
         if (backgroundStyle && backgroundStyle.startsWith('svg_')) {
             const animationType = backgroundStyle.replace('svg_', '');
-            this.svgManager.startAnimation(animationType, backgroundContainer, {
-                count: this.getSVGCount(animationType)
-            });
+            if (this.svgManager) {
+                const svgCount = this.getSVGCount(animationType);
+                try {
+                    this.svgManager.startAnimation(animationType, backgroundContainer, {
+                        count: svgCount,
+                        speed: 1
+                    });
+                } catch (error) {
+                    console.error('❌ SVG animation failed:', error);
+                }
+            } else {
+                console.error('❌ SVGAnimationManager not available');
+            }
         }
-        
-        console.log('🎭 Background effects initialized:', backgroundStyle);
+    }
+    
+    clearBackgroundEffects() {
+        try {
+            if (this.particleManager) {
+                this.particleManager.stopSystem();
+            }
+            if (this.svgManager) {
+                this.svgManager.stopAnimation();
+            }
+        } catch (error) {
+            console.warn('⚠️ Error clearing background effects:', error);
+        }
     }
     
     getParticleCount(type) {
         const counts = {
-            hearts: 12,
-            stars: 25,
-            petals: 15,
-            fireflies: 18,
-            bubbles: 10
+            hearts: 25,  // More hearts for continuous shower
+            stars: 60,   // More stars for better coverage
+            petals: 30,  // More petals for fuller effect
+            fireflies: 35, // More fireflies for better swarms
+            bubbles: 20  // More bubbles for continuous flow
         };
-        return counts[type] || 15;
+        return counts[type] || 25;
     }
     
     getSVGCount(type) {
@@ -272,8 +360,12 @@ class ValentineExperience {
         // Show loading state
         this.showState('loading');
         
+        // Initialize enhancements early
+        await this.delay(1000); // Give time for managers to load
+        this.initializeEnhancements();
+        
         // Simulate loading time for dramatic effect
-        await this.delay(3000);
+        await this.delay(2000);
         
         // Transition to welcome
         this.transitionTo('welcome');
@@ -298,8 +390,6 @@ class ValentineExperience {
             
             // Announce to screen readers
             this.announceState(stateName);
-            
-            console.log(`🎭 Showing state: ${stateName}`);
         }
     }
     
@@ -335,6 +425,9 @@ class ValentineExperience {
             
             await this.delay(500);
             
+            // Re-apply enhancements to new content
+            this.reapplyEnhancements();
+            
             // Reset styles
             Object.values(this.stateContainers).forEach(container => {
                 if (container) {
@@ -348,6 +441,26 @@ class ValentineExperience {
         } finally {
             this.isTransitioning = false;
         }
+    }
+    
+    reapplyEnhancements() {
+        // Re-apply font styles to newly visible elements
+        if (this.experienceData.font_style && this.experienceData.font_style !== 'sans_modern') {
+            this.applyFontStyle(this.experienceData.font_style);
+        }
+        
+        // Re-apply text effects
+        if (this.experienceData.text_effect && this.experienceData.text_effect !== 'none') {
+            this.applyTextEffect(this.experienceData.text_effect);
+        }
+        
+        // Re-apply text animations
+        if (this.experienceData.text_animation && this.experienceData.text_animation !== 'fade_in') {
+            this.applyTextAnimation(this.experienceData.text_animation);
+        }
+        
+        // DON'T restart background effects - let them continue running
+        // The particle system is now continuous and doesn't need restarting
     }
     
     nextState() {
@@ -364,8 +477,6 @@ class ValentineExperience {
     }
     
     handleDecision(choice) {
-        console.log(`💝 Decision made: ${choice}`);
-        
         // Add visual feedback
         const clickedBtn = document.querySelector(`[data-choice="${choice}"]`);
         if (clickedBtn) {
@@ -389,8 +500,6 @@ class ValentineExperience {
     }
     
     async handleYesResponse() {
-        console.log('🎉 YES response - showing confirmation');
-        
         // Show celebration or video
         await this.transitionTo('confirmation-state');
         
@@ -399,7 +508,6 @@ class ValentineExperience {
             try {
                 this.video.muted = false; // Unmute for user interaction
                 await this.video.play();
-                console.log('📹 Video playing');
             } catch (error) {
                 console.error('Video play error:', error);
                 this.handleVideoError();
@@ -411,8 +519,6 @@ class ValentineExperience {
     }
     
     async handleMaybeResponse() {
-        console.log('💭 MAYBE response - showing gentle message');
-        
         // Update exit message for "maybe" response
         const exitMessage = document.getElementById('exit-message');
         if (exitMessage) {
@@ -428,8 +534,6 @@ class ValentineExperience {
     }
     
     async handleFriendsResponse() {
-        console.log('🤗 FRIENDS response - showing understanding message');
-        
         // Update exit message for "friends" response
         const exitMessage = document.getElementById('exit-message');
         if (exitMessage) {

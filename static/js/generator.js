@@ -23,24 +23,12 @@ class ValentineGenerator {
     }
     
     init() {
-        console.log('🌹 Initializing Valentine Generator...');
-        
         try {
             this.cacheElements();
             this.setupEventListeners();
             this.setupFileUpload();
             this.setupEnhancementSystems();
             this.updateProgress();
-            
-            console.log('✨ Generator initialized successfully');
-        
-        // Add debug method to window for testing
-        window.testBackgroundPreview = (type) => {
-            console.log('🧪 Manual test for background type:', type);
-            this.previewBackground(type);
-        };
-        
-        window.valentineGenerator = this; // Make generator accessible for debugging
         } catch (error) {
             console.error('💔 Generator initialization failed:', error);
             this.showError('Failed to initialize the generator. Please refresh the page.');
@@ -80,17 +68,13 @@ class ValentineGenerator {
             5: []  // No required fields for step 5 (all enhancement options are optional)
         };
         
-        console.log('📋 Elements cached successfully');
-        
-        // Debug: Log cached elements
-        console.log('🔍 Cached elements debug:', {
-            form: !!this.form,
-            successModal: !!this.successModal,
-            shareLinkInput: !!this.shareLinkInput,
-            accessPinInput: !!this.accessPinInput,
-            copyPinBtn: !!this.copyPinBtn,
-            copyLinkBtn: !!this.copyLinkBtn
-        });
+        // Check critical elements
+        if (!this.form || !this.successModal) {
+            console.error('❌ Critical elements missing:', {
+                form: !!this.form,
+                successModal: !!this.successModal
+            });
+        }
     }
     
     setupEventListeners() {
@@ -121,16 +105,12 @@ class ValentineGenerator {
         
         // Auto-save form data
         this.setupAutoSave();
-        
-        console.log('🎯 Event listeners set up');
     }
     
     setupPinFunctionality() {
         const customPinInput = document.getElementById('custom_pin');
         
         if (customPinInput) {
-            console.log('📍 Custom PIN input found, setting up validation');
-            
             // Validate PIN input (only numbers, 4 digits)
             customPinInput.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/[^0-9]/g, ''); // Only numbers
@@ -157,8 +137,6 @@ class ValentineGenerator {
         } else {
             console.error('❌ Custom PIN input not found');
         }
-        
-        console.log('🔐 PIN functionality set up');
     }
     
     validatePinInput(input) {
@@ -213,18 +191,38 @@ class ValentineGenerator {
                 this.handleFileSelect(e.target.files[0]);
             }
         });
-        
-        console.log('📁 File upload set up');
     }
     
     setupEnhancementSystems() {
-        console.log('🎨 Setting up enhancement systems...');
+        // Check if enhancement managers are available
+        const managersStatus = {
+            colorManager: !!this.colorManager,
+            particleManager: !!this.particleManager,
+            svgManager: !!this.svgManager,
+            typographyManager: !!this.typographyManager
+        };
+        
+        // Initialize missing managers if classes are available
+        if (!this.colorManager && window.ColorGradientManager) {
+            this.colorManager = new ColorGradientManager();
+        }
+        
+        if (!this.particleManager && window.ParticleSystemManager) {
+            this.particleManager = new ParticleSystemManager();
+        }
+        
+        if (!this.svgManager && window.SVGAnimationManager) {
+            this.svgManager = new SVGAnimationManager();
+        }
+        
+        if (!this.typographyManager && window.TypographyManager) {
+            this.typographyManager = new TypographyManager();
+        }
         
         // Initialize font selector (Step 5)
         const fontSelector = document.getElementById('font-selector');
-        if (fontSelector) {
+        if (fontSelector && this.typographyManager) {
             this.typographyManager.createFontSelector(fontSelector, (fontKey, font) => {
-                console.log('Font selected:', fontKey, font.name);
                 this.selectedFont = fontKey;
                 this.previewFontChange(font);
             });
@@ -235,8 +233,6 @@ class ValentineGenerator {
         
         // Setup background preview system (Step 3)
         this.setupBackgroundPreviews();
-        
-        console.log('✨ Enhancement systems ready');
     }
     
     setupTextEffectPreviews() {
@@ -244,7 +240,6 @@ class ValentineGenerator {
         effectOptions.forEach(option => {
             option.addEventListener('change', (e) => {
                 if (e.target.checked) {
-                    console.log('Text effect selected:', e.target.value);
                     this.previewTextEffect(e.target.value);
                 }
             });
@@ -252,37 +247,46 @@ class ValentineGenerator {
     }
     
     setupBackgroundPreviews() {
-        console.log('🎭 Setting up background previews...');
-        
-        // Wait for DOM to be ready, then setup listeners
-        setTimeout(() => {
-            const backgroundOptions = document.querySelectorAll('input[name="background_style"]');
-            console.log('Found background options:', backgroundOptions.length);
-            
-            backgroundOptions.forEach((option, index) => {
-                console.log(`Setting up listener for option ${index}:`, option.value);
-                
-                option.addEventListener('change', (e) => {
-                    console.log('🎨 Background style changed to:', e.target.value);
-                    if (e.target.checked) {
-                        this.previewBackground(e.target.value);
-                    }
-                });
-                
-                // Also trigger on click for immediate feedback
-                option.addEventListener('click', (e) => {
-                    console.log('🖱️ Background style clicked:', e.target.value);
-                    setTimeout(() => {
-                        if (e.target.checked) {
-                            this.previewBackground(e.target.value);
-                        }
-                    }, 100);
-                });
-            });
-            
-            console.log('✅ Background preview listeners attached');
-        }, 500); // Give time for DOM to fully load
+        // Setup grid-based preview system
+        this.initializeGridBackgroundSystem();
     }
+    
+    initializeGridBackgroundSystem() {
+        // Setup background style radio buttons
+        const backgroundOptions = document.querySelectorAll('input[name="background_style"]');
+        backgroundOptions.forEach(option => {
+            option.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.previewBackgroundStyle(e.target.value);
+                }
+            });
+        });
+        
+        // Initialize with the currently selected option
+        const selectedOption = document.querySelector('input[name="background_style"]:checked');
+        if (selectedOption) {
+            this.previewBackgroundStyle(selectedOption.value);
+        }
+    }
+    
+    previewBackgroundStyle(backgroundType) {
+        // Only show preview on Step 3
+        if (this.currentStep !== 3) {
+            return;
+        }
+        
+        // Find the preview element for this style
+        const stylePreview = document.querySelector(`.style-${backgroundType}`);
+        if (stylePreview) {
+            // Add visual feedback to show it's selected
+            document.querySelectorAll('.style-preview').forEach(preview => {
+                preview.classList.remove('preview-active');
+            });
+            stylePreview.classList.add('preview-active');
+        }
+    }
+    
+    // Removed complex dropdown preview methods - using simple grid system now
     
     previewFontChange(font) {
         // Apply font to preview elements
@@ -303,80 +307,6 @@ class ValentineGenerator {
                 element.classList.add(`text-${effectType}`);
             }
         });
-    }
-    
-    previewBackground(backgroundType) {
-        console.log('🎭 Starting background preview for:', backgroundType);
-        
-        // Stop any existing background effects
-        try {
-            this.particleManager.stopSystem();
-            this.svgManager.stopAnimation();
-            console.log('🛑 Stopped existing effects');
-        } catch (error) {
-            console.warn('Error stopping existing effects:', error);
-        }
-        
-        // Find a suitable container for preview
-        let previewContainer = document.querySelector('.form-container');
-        if (!previewContainer) {
-            previewContainer = document.querySelector('.container');
-        }
-        if (!previewContainer) {
-            previewContainer = document.querySelector('body');
-        }
-        
-        console.log('📦 Using container:', previewContainer?.className || 'body');
-        
-        if (!previewContainer) {
-            console.error('❌ No suitable container found for preview');
-            return;
-        }
-        
-        // Start new background effect based on type
-        try {
-            if (backgroundType === 'hearts') {
-                console.log('💖 Starting heart rain...');
-                this.particleManager.startSystem('hearts', previewContainer, { count: 8 });
-            } else if (backgroundType === 'stars') {
-                console.log('⭐ Starting starfield...');
-                this.particleManager.startSystem('stars', previewContainer, { count: 15 });
-            } else if (backgroundType === 'petals') {
-                console.log('🌸 Starting rose petals...');
-                this.particleManager.startSystem('petals', previewContainer, { count: 10 });
-            } else if (backgroundType === 'fireflies') {
-                console.log('✨ Starting fireflies...');
-                this.particleManager.startSystem('fireflies', previewContainer, { count: 12 });
-            } else if (backgroundType === 'bubbles') {
-                console.log('🫧 Starting bubbles...');
-                this.particleManager.startSystem('bubbles', previewContainer, { count: 6 });
-            } else if (backgroundType === 'svg_hearts') {
-                console.log('💕 Starting SVG hearts...');
-                this.svgManager.startAnimation('hearts', previewContainer, { count: 4 });
-            } else if (backgroundType === 'svg_waves') {
-                console.log('🌊 Starting SVG waves...');
-                this.svgManager.startAnimation('waves', previewContainer, { count: 2 });
-            } else if (backgroundType === 'svg_shapes') {
-                console.log('🔷 Starting SVG shapes...');
-                this.svgManager.startAnimation('shapes', previewContainer, { count: 6 });
-            } else if (backgroundType === 'svg_nature') {
-                console.log('🍃 Starting SVG nature...');
-                this.svgManager.startAnimation('nature', previewContainer, { count: 4 });
-            } else {
-                console.log('🔄 No special effect for:', backgroundType);
-            }
-            
-            // Add a visual indicator that preview is active
-            previewContainer.classList.add('background-preview-active');
-            setTimeout(() => {
-                previewContainer.classList.remove('background-preview-active');
-            }, 3000);
-            
-            console.log('✅ Background preview started successfully');
-            
-        } catch (error) {
-            console.error('❌ Error starting background preview:', error);
-        }
     }
     
     handleFileSelect(file) {
@@ -402,8 +332,6 @@ class ValentineGenerator {
                 <p class="upload-text">Video selected: ${file.name}</p>
                 <p class="upload-help">Size: ${this.formatFileSize(file.size)}</p>
             `;
-            
-            console.log('📹 Video file selected:', file.name);
             
         } catch (error) {
             console.error('File selection error:', error);
@@ -526,7 +454,6 @@ class ValentineGenerator {
                     }
                 });
                 
-                console.log('📝 Form data loaded from localStorage');
             }
         } catch (error) {
             console.warn('Failed to load form data:', error);
@@ -571,8 +498,6 @@ class ValentineGenerator {
     }
     
     showStep(stepNumber) {
-        console.log(`🔄 Showing step ${stepNumber}, current scroll position: ${window.pageYOffset}`);
-        
         // Hide all steps
         this.steps.forEach(step => {
             step.classList.remove('active');
@@ -584,8 +509,12 @@ class ValentineGenerator {
             currentStep.classList.add('active');
         }
         
-        // Keep the user at the same scroll position - no scrolling at all
-        console.log(`✅ Step ${stepNumber} shown, scroll position maintained: ${window.pageYOffset}`);
+        // Initialize background system when entering Step 3
+        if (stepNumber === 3) {
+            setTimeout(() => {
+                this.initializeGridBackgroundSystem();
+            }, 300);
+        }
     }
     
     updateProgress() {
@@ -615,10 +544,12 @@ class ValentineGenerator {
         // Previous button
         if (this.prevBtn) {
             this.prevBtn.style.display = this.currentStep > 1 ? 'block' : 'none';
+            this.prevBtn.disabled = false;
         }
         
-        // Next/Create button
+        // Next/Create button logic
         if (this.currentStep < this.totalSteps) {
+            // Show Next button for steps 1-4
             if (this.nextBtn) {
                 this.nextBtn.style.display = 'block';
                 this.nextBtn.disabled = !this.validateCurrentStep();
@@ -627,12 +558,13 @@ class ValentineGenerator {
                 this.createBtn.style.display = 'none';
             }
         } else {
+            // Show Create button for step 5 (final step)
             if (this.nextBtn) {
                 this.nextBtn.style.display = 'none';
             }
             if (this.createBtn) {
                 this.createBtn.style.display = 'block';
-                this.createBtn.disabled = !this.validateCurrentStep();
+                this.createBtn.disabled = false; // Step 5 has no required fields
             }
         }
     }
@@ -679,15 +611,12 @@ class ValentineGenerator {
     }
     
     showSuccess(result) {
-        console.log('🎉 Success result received:', result);
-        
         // Ensure modal elements are available before proceeding
         this.ensureModalElements();
         
         // Populate modal with results
         if (this.shareLinkInput) {
             this.shareLinkInput.value = result.url || '';
-            console.log('📎 Link set:', result.url);
         } else {
             console.error('❌ Share link input not found');
         }
@@ -713,46 +642,37 @@ class ValentineGenerator {
         setTimeout(() => {
             if (this.successModal) {
                 this.successModal.classList.add('active');
-                console.log('✅ Success modal shown');
             } else {
                 console.error('❌ Success modal not found');
             }
         }, 100);
-        
-        console.log('🎉 Experience created successfully:', result.unique_id, 'PIN:', result.access_pin);
     }
     
     ensureModalElements() {
         // Re-cache critical elements if they're missing
         if (!this.successModal) {
             this.successModal = document.getElementById('success-modal');
-            console.log('🔄 Re-cached successModal:', !!this.successModal);
         }
         
         if (!this.accessPinInput) {
             this.accessPinInput = document.getElementById('access-pin');
-            console.log('🔄 Re-cached accessPinInput:', !!this.accessPinInput);
         }
         
         if (!this.copyPinBtn) {
             this.copyPinBtn = document.getElementById('copy-pin-btn');
-            console.log('🔄 Re-cached copyPinBtn:', !!this.copyPinBtn);
         }
         
         if (!this.shareLinkInput) {
             this.shareLinkInput = document.getElementById('share-link');
-            console.log('🔄 Re-cached shareLinkInput:', !!this.shareLinkInput);
         }
     }
     
     setPinValue(pin) {
         if (this.accessPinInput) {
             this.accessPinInput.value = pin;
-            console.log('🔐 PIN set via cached element:', pin);
             
             // Verify the value was set
             if (this.accessPinInput.value === pin) {
-                console.log('✅ PIN value verified:', this.accessPinInput.value);
                 return true;
             } else {
                 console.error('❌ PIN value verification failed. Expected:', pin, 'Got:', this.accessPinInput.value);
@@ -769,14 +689,13 @@ class ValentineGenerator {
         const pinInput = document.getElementById('access-pin');
         if (pinInput) {
             pinInput.value = pin;
-            console.log('🔐 PIN set via fallback method:', pin);
             
             // Force update the cached reference
             this.accessPinInput = pinInput;
             
             // Verify
             if (pinInput.value === pin) {
-                console.log('✅ Fallback PIN value verified:', pinInput.value);
+                // Success
             } else {
                 console.error('❌ Fallback PIN verification failed');
             }
@@ -934,12 +853,9 @@ class ValentineGenerator {
                 return;
             }
             
-            console.log('📋 Attempting to copy PIN:', pinValue);
-            
             // Use modern Clipboard API
             if (navigator.clipboard && window.isSecureContext) {
                 await navigator.clipboard.writeText(pinValue);
-                console.log('✅ PIN copied via Clipboard API');
             } else {
                 // Fallback for older browsers
                 this.accessPinInput.select();
@@ -948,7 +864,6 @@ class ValentineGenerator {
                 if (!success) {
                     throw new Error('document.execCommand failed');
                 }
-                console.log('✅ PIN copied via legacy method');
             }
             
             // Update button text temporarily
@@ -960,8 +875,6 @@ class ValentineGenerator {
                 this.copyPinBtn.textContent = originalText;
                 this.copyPinBtn.style.background = '';
             }, 2000);
-            
-            console.log('📋 PIN copied successfully:', pinValue);
             
         } catch (error) {
             console.error('Copy PIN failed:', error);
@@ -1008,8 +921,6 @@ class ValentineGenerator {
         
         // Clear saved data
         this.clearFormData();
-        
-        // NO SCROLLING - let the user stay where they are
     }
     
     viewExperience() {
@@ -1024,55 +935,6 @@ class ValentineGenerator {
         } catch (error) {
             console.warn('Failed to clear form data:', error);
         }
-    }
-    
-    // Debug method to test PIN elements
-    debugPinElements() {
-        console.log('🔍 DEBUG: PIN Elements Check');
-        
-        const elements = {
-            successModal: document.getElementById('success-modal'),
-            accessPinInput: document.getElementById('access-pin'),
-            copyPinBtn: document.getElementById('copy-pin-btn'),
-            shareLinkInput: document.getElementById('share-link'),
-            copyLinkBtn: document.getElementById('copy-link-btn'),
-            customPinInput: document.getElementById('custom_pin')
-        };
-        
-        console.log('Elements found:', elements);
-        
-        // Test setting PIN value
-        if (elements.accessPinInput) {
-            elements.accessPinInput.value = 'TEST-1234';
-            console.log('✅ Test PIN set:', elements.accessPinInput.value);
-        }
-        
-        // Test custom PIN validation
-        if (elements.customPinInput) {
-            const testPin = '5678';
-            elements.customPinInput.value = testPin;
-            this.validatePinInput(elements.customPinInput);
-            console.log('✅ Test custom PIN set and validated:', testPin);
-        }
-        
-        // Test showing modal
-        if (elements.successModal) {
-            elements.successModal.classList.add('active');
-            console.log('✅ Modal shown for testing');
-            
-            // Hide after 3 seconds
-            setTimeout(() => {
-                elements.successModal.classList.remove('active');
-                console.log('✅ Modal hidden');
-            }, 3000);
-        }
-        
-        // Test copy functionality
-        if (elements.copyPinBtn) {
-            elements.copyPinBtn.click();
-        }
-        
-        return elements;
     }
 }
 

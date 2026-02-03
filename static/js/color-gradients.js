@@ -86,10 +86,10 @@ class ColorGradientManager {
             },
             dark_gothic: {
                 name: 'Dark Gothic',
-                primary: '#2d3436',
-                secondary: '#636e72',
-                accent: '#e17055',
-                background: 'linear-gradient(135deg, #2d3436 0%, #636e72 50%, #e17055 100%)',
+                primary: '#1a1c1dff',
+                secondary: '#393d3fff',
+                accent: '#e75a37ff',
+                background: 'linear-gradient(135deg, #141718ff 0%, #2b2d2eff 50%, #f15b36ff 100%)',
                 description: 'Dark romantic with gothic elegance',
                 category: 'dramatic'
             },

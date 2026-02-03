@@ -41,8 +41,8 @@ app = Flask(__name__)
 app.config.update(
     SECRET_KEY=os.environ.get('SECRET_KEY', secrets.token_hex(32)),
     MAX_CONTENT_LENGTH=100 * 1024 * 1024,  # 100MB max file size
-    TEMPLATES_AUTO_RELOAD=False,  # Production setting
-    SEND_FILE_MAX_AGE_DEFAULT=31536000,  # 1 year cache for static files
+    TEMPLATES_AUTO_RELOAD=True,  # Auto-reload templates for development
+    SEND_FILE_MAX_AGE_DEFAULT=0,  # Disable caching for development
     DATABASE_URL=os.environ.get('DATABASE_URL', 'valentine_experiences.db'),
     UPLOAD_FOLDER='uploads',
     ALLOWED_EXTENSIONS={'mp4', 'mov', 'avi', 'mkv', 'webm'},
@@ -562,7 +562,7 @@ BACKGROUND_STYLES = {
         'description': 'Clean and minimal background'
     },
     
-    # NEW ENHANCED BACKGROUNDS
+    # ENHANCED PARTICLE BACKGROUNDS
     'hearts': {
         'name': 'Heart Rain',
         'description': 'Falling animated hearts'
@@ -582,22 +582,6 @@ BACKGROUND_STYLES = {
     'bubbles': {
         'name': 'Bubbles',
         'description': 'Floating soap bubbles'
-    },
-    'svg_hearts': {
-        'name': 'Animated Hearts',
-        'description': 'Pulsing heart shapes with smooth animations'
-    },
-    'svg_waves': {
-        'name': 'Geometric Waves',
-        'description': 'Flowing wave patterns with gradient colors'
-    },
-    'svg_shapes': {
-        'name': 'Floating Shapes',
-        'description': 'Geometric shapes floating with depth'
-    },
-    'svg_nature': {
-        'name': 'Nature Elements',
-        'description': 'Animated leaves, flowers, and butterflies'
     }
 }
 
@@ -891,6 +875,15 @@ def get_stats(unique_id):
     except Exception as e:
         logger.error(f"Error getting stats for {unique_id}: {e}")
         return jsonify({'error': 'Failed to get stats'}), 500
+
+@app.after_request
+def add_header(response):
+    """Add headers to disable caching for development"""
+    if app.debug or app.config.get('TEMPLATES_AUTO_RELOAD'):
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
 
 @app.route('/health')
 def health_check():

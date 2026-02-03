@@ -9,100 +9,84 @@
 class TypographyManager {
     constructor() {
         this.fontFamilies = {
-            // Script & Handwritten
+            // Script & Handwritten - Simple and reliable
             script_elegant: {
-                name: 'Elegant Script',
+                name: 'Dancing Script',
                 family: '"Dancing Script", "Brush Script MT", cursive',
                 category: 'script',
-                description: 'Flowing script font perfect for romantic messages',
+                description: 'Elegant flowing script for romantic messages',
                 weight: '400',
-                googleFont: 'Dancing+Script:400,700'
+                googleFont: 'Dancing+Script:400,700',
+                previewText: 'I Love You Forever 💕'
             },
-            script_romantic: {
-                name: 'Romantic Script',
-                family: '"Great Vibes", "Lucida Handwriting", cursive',
-                category: 'script',
-                description: 'Romantic handwritten style',
-                weight: '400',
-                googleFont: 'Great+Vibes'
-            },
-            script_modern: {
-                name: 'Modern Script',
+            script_casual: {
+                name: 'Pacifico',
                 family: '"Pacifico", "Bradley Hand", cursive',
                 category: 'script',
-                description: 'Modern casual script',
+                description: 'Casual friendly handwriting style',
                 weight: '400',
-                googleFont: 'Pacifico'
+                googleFont: 'Pacifico',
+                previewText: 'You Make Me Happy 💕'
             },
             
-            // Serif Fonts
+            // Serif Fonts - Classic and elegant
             serif_classic: {
-                name: 'Classic Serif',
+                name: 'Playfair Display',
                 family: '"Playfair Display", "Times New Roman", serif',
                 category: 'serif',
-                description: 'Elegant classical serif',
+                description: 'Elegant classical serif for sophisticated messages',
                 weight: '400',
-                googleFont: 'Playfair+Display:400,700,400italic'
+                googleFont: 'Playfair+Display:400,700',
+                previewText: 'My Dearest Love 💕'
             },
             serif_romantic: {
-                name: 'Romantic Serif',
+                name: 'Crimson Text',
                 family: '"Crimson Text", "Georgia", serif',
                 category: 'serif',
                 description: 'Romantic book-style serif',
                 weight: '400',
-                googleFont: 'Crimson+Text:400,600,400italic'
-            },
-            serif_vintage: {
-                name: 'Vintage Serif',
-                family: '"Libre Baskerville", "Book Antiqua", serif',
-                category: 'serif',
-                description: 'Vintage newspaper style',
-                weight: '400',
-                googleFont: 'Libre+Baskerville:400,700,400italic'
+                googleFont: 'Crimson+Text:400,600',
+                previewText: 'With All My Heart 💕'
             },
             
-            // Sans Serif Fonts
+            // Sans Serif Fonts - Modern and clean
             sans_modern: {
-                name: 'Modern Sans',
+                name: 'Poppins',
                 family: '"Poppins", "Helvetica Neue", sans-serif',
                 category: 'sans',
                 description: 'Clean modern sans-serif',
                 weight: '400',
-                googleFont: 'Poppins:300,400,600,700'
+                googleFont: 'Poppins:300,400,600',
+                previewText: 'You Are Amazing 💕'
             },
             sans_elegant: {
-                name: 'Elegant Sans',
+                name: 'Montserrat',
                 family: '"Montserrat", "Arial", sans-serif',
                 category: 'sans',
-                description: 'Sophisticated sans-serif',
+                description: 'Sophisticated geometric sans-serif',
                 weight: '400',
-                googleFont: 'Montserrat:300,400,500,600,700'
-            },
-            sans_friendly: {
-                name: 'Friendly Sans',
-                family: '"Open Sans", "Verdana", sans-serif',
-                category: 'sans',
-                description: 'Warm and friendly',
-                weight: '400',
-                googleFont: 'Open+Sans:300,400,600,700'
+                googleFont: 'Montserrat:300,400,600',
+                previewText: 'Be My Valentine 💕'
             },
             
-            // Decorative Fonts
-            decorative_fancy: {
-                name: 'Fancy Decorative',
-                family: '"Cinzel", "Papyrus", fantasy',
-                category: 'decorative',
-                description: 'Ornate decorative font',
+            // Simple fallback fonts that always work
+            classic_serif: {
+                name: 'Times New Roman',
+                family: '"Times New Roman", Times, serif',
+                category: 'serif',
+                description: 'Classic traditional serif font',
                 weight: '400',
-                googleFont: 'Cinzel:400,600'
+                googleFont: null,
+                previewText: 'Classic Love Letter 💕'
             },
-            decorative_modern: {
-                name: 'Modern Decorative',
-                family: '"Raleway", "Impact", sans-serif',
-                category: 'decorative',
-                description: 'Modern stylish display',
-                weight: '300',
-                googleFont: 'Raleway:300,400,500,600,700'
+            classic_sans: {
+                name: 'Arial',
+                family: 'Arial, "Helvetica Neue", sans-serif',
+                category: 'sans',
+                description: 'Clean and readable sans-serif',
+                weight: '400',
+                googleFont: null,
+                previewText: 'Simple & Beautiful 💕'
             }
         };
 
@@ -170,24 +154,47 @@ class TypographyManager {
     }
 
     /**
-     * Load Google Fonts dynamically
+     * Load Google Fonts dynamically with better error handling
      */
     async loadGoogleFont(fontKey) {
         const font = this.fontFamilies[fontKey];
         if (!font || !font.googleFont || this.loadedFonts.has(fontKey)) {
-            return;
+            return Promise.resolve();
         }
 
+        // Create a more reliable font loading approach
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = `https://fonts.googleapis.com/css2?family=${font.googleFont}&display=swap`;
         
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
+            const timeout = setTimeout(() => {
+                console.warn(`⚠️ Font loading timeout for: ${font.name} - using fallback`);
+                resolve(); // Always resolve to not block UI
+            }, 2000); // Shorter timeout for better UX
+            
             link.onload = () => {
+                clearTimeout(timeout);
+                this.loadedFonts.add(fontKey);
+                
+                // Wait a bit for font to be ready
+                setTimeout(resolve, 50);
+            };
+            
+            link.onerror = (error) => {
+                clearTimeout(timeout);
+                console.warn(`⚠️ Font loading failed for: ${font.name} - using fallback`, error);
+                resolve(); // Always resolve to not block UI
+            };
+            
+            // Check if font is already loaded
+            const existingLink = document.querySelector(`link[href*="${font.googleFont}"]`);
+            if (existingLink) {
                 this.loadedFonts.add(fontKey);
                 resolve();
-            };
-            link.onerror = reject;
+                return;
+            }
+            
             document.head.appendChild(link);
         });
     }
@@ -207,7 +214,11 @@ class TypographyManager {
         } = options;
 
         // Load font if needed
-        await this.loadGoogleFont(fontKey);
+        try {
+            await this.loadGoogleFont(fontKey);
+        } catch (error) {
+            console.warn(`⚠️ Font loading failed, using fallback for: ${fontKey}`, error);
+        }
 
         const font = this.fontFamilies[fontKey];
         if (!font) return false;
@@ -299,18 +310,20 @@ class TypographyManager {
 
         container.innerHTML = '';
         
-        // Create category tabs
-        const categories = ['script', 'serif', 'sans', 'decorative'];
+        // Create category tabs - only the working categories
+        const categories = ['script', 'serif', 'sans'];
         const tabsContainer = document.createElement('div');
         tabsContainer.className = 'font-tabs';
         
         categories.forEach(category => {
             const tab = document.createElement('button');
+            tab.type = 'button'; // Prevent form submission
             tab.className = 'font-tab';
             tab.textContent = category.charAt(0).toUpperCase() + category.slice(1);
             tab.dataset.category = category;
             
-            tab.addEventListener('click', () => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent form submission
                 container.querySelectorAll('.font-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 this.showFontsForCategory(container, category, onSelect);
@@ -348,29 +361,68 @@ class TypographyManager {
             
             const preview = document.createElement('div');
             preview.className = 'font-preview';
-            preview.textContent = 'Love is in the air 💕';
-            preview.style.fontFamily = font.family;
+            preview.textContent = font.previewText || 'I Love You 💕';
+            
+            // Apply font styling immediately
+            preview.style.cssText = `
+                font-family: ${font.family};
+                font-size: 20px;
+                font-weight: ${font.weight};
+                text-align: center;
+                padding: 16px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 8px;
+                margin-bottom: 12px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                line-height: 1.2;
+            `;
             
             const info = document.createElement('div');
             info.className = 'font-info';
             info.innerHTML = `
-                <h4>${font.name}</h4>
-                <p>${font.description}</p>
+                <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: white;">${font.name}</h4>
+                <p style="margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.4; color: rgba(255,255,255,0.8);">${font.description}</p>
             `;
             
             fontItem.appendChild(preview);
             fontItem.appendChild(info);
             
-            fontItem.addEventListener('click', async () => {
+            fontItem.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 container.querySelectorAll('.font-item').forEach(item => 
                     item.classList.remove('selected'));
                 fontItem.classList.add('selected');
                 
-                await this.loadGoogleFont(key);
+                // Load Google Font if available
+                if (font.googleFont) {
+                    try {
+                        await this.loadGoogleFont(key);
+                        preview.style.fontFamily = font.family;
+                    } catch (error) {
+                        console.warn(`⚠️ Font loading failed for ${font.name}, using fallback`);
+                    }
+                }
+                
                 if (onSelect) onSelect(key, font);
             });
             
             fontsContainer.appendChild(fontItem);
+            
+            // Pre-load Google Fonts for better preview
+            if (font.googleFont) {
+                this.loadGoogleFont(key).then(() => {
+                    preview.style.fontFamily = font.family;
+                }).catch(() => {
+                    // Fallback fonts will still work
+                });
+            }
         });
     }
 
@@ -398,6 +450,13 @@ class TypographyManager {
      */
     getTextAnimations() {
         return this.animations;
+    }
+    
+    /**
+     * Get font configuration by key
+     */
+    getFontConfig(fontKey) {
+        return this.fontFamilies[fontKey] || null;
     }
 }
 

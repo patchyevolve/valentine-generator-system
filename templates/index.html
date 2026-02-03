@@ -27,10 +27,10 @@ Valentine's Day Experience Generator
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/generator.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/particle-animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/svg-animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography-animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/generator.css') }}?v=2.7">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/particle-animations.css') }}?v=2.7">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/svg-animations.css') }}?v=2.7">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography-animations.css') }}?v=2.7">
     
     <!-- Meta tags -->
     <meta name="theme-color" content="#ff6b9d">
@@ -152,20 +152,24 @@ Valentine's Day Experience Generator
                             </div>
                             
                             <div class="form-group">
-                                <label class="form-label">Background Style</label>
+                                <label class="form-label">🎨 Background Style</label>
                                 <div class="background-style-grid">
                                     {% for style_id, style in background_styles.items() %}
+                                    {% if style_id not in ['svg_hearts', 'svg_waves', 'svg_shapes'] %}
                                     <div class="background-style-option">
                                         <input type="radio" id="bg_{{ style_id }}" name="background_style" 
                                                value="{{ style_id }}" {% if loop.first %}checked{% endif %}>
                                         <label for="bg_{{ style_id }}" class="style-label">
-                                            <div class="style-preview style-{{ style_id }}"></div>
+                                            <div class="style-preview style-{{ style_id }}">
+                                                <div class="preview-overlay">Preview</div>
+                                            </div>
                                             <div class="style-info">
                                                 <h4 class="style-name">{{ style.name }}</h4>
                                                 <p class="style-description">{{ style.description }}</p>
                                             </div>
                                         </label>
                                     </div>
+                                    {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
@@ -213,80 +217,147 @@ Valentine's Day Experience Generator
                         <!-- Step 5: Typography & Effects -->
                         <div class="form-step" data-step="5">
                             <div class="step-header">
-                                <h3 class="step-title">Step 5: Typography & Effects</h3>
-                                <p class="step-description">Choose fonts, text effects, and background animations</p>
+                                <h3 class="step-title">Step 5: Final Touches</h3>
+                                <p class="step-description">Add the perfect typography and visual flair</p>
                             </div>
                             
-                            <div class="form-group">
-                                <label class="form-label">💫 Font Style</label>
-                                <div class="font-selector" id="font-selector">
-                                    <!-- Font options will be populated by JavaScript -->
+                            <!-- Typography Section -->
+                            <div class="enhancement-section">
+                                <div class="section-header">
+                                    <h4 class="section-title">✍️ Typography</h4>
+                                    <p class="section-subtitle">Choose the perfect font for your message</p>
+                                </div>
+                                
+                                <div class="typography-grid">
+                                    <div class="font-option">
+                                        <input type="radio" id="font_script" name="font_style" value="script_elegant" checked>
+                                        <label for="font_script" class="font-label">
+                                            <div class="font-preview" style="font-family: 'Dancing Script', cursive;">
+                                                Love You
+                                            </div>
+                                            <div class="font-info">
+                                                <span class="font-name">Romantic Script</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="font-option">
+                                        <input type="radio" id="font_serif" name="font_style" value="serif_classic">
+                                        <label for="font_serif" class="font-label">
+                                            <div class="font-preview" style="font-family: 'Playfair Display', serif;">
+                                                Love You
+                                            </div>
+                                            <div class="font-info">
+                                                <span class="font-name">Classic Serif</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="font-option">
+                                        <input type="radio" id="font_sans" name="font_style" value="sans_modern">
+                                        <label for="font_sans" class="font-label">
+                                            <div class="font-preview" style="font-family: 'Poppins', sans-serif;">
+                                                Love You
+                                            </div>
+                                            <div class="font-info">
+                                                <span class="font-name">Modern Sans</span>
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="form-group">
-                                <label class="form-label">✨ Text Effects</label>
-                                <div class="effect-options">
-                                    <div class="effect-option">
-                                        <input type="radio" id="effect_none" name="text_effect" value="none" checked>
-                                        <label for="effect_none" class="effect-label">
-                                            <span class="effect-preview">Normal Text</span>
-                                            <span class="effect-name">None</span>
+                            <!-- Effects Section -->
+                            <div class="enhancement-section">
+                                <div class="section-header">
+                                    <h4 class="section-title">✨ Visual Effects</h4>
+                                    <p class="section-subtitle">Add some magic to your text</p>
+                                </div>
+                                
+                                <div class="effects-grid">
+                                    <div class="effect-card">
+                                        <input type="radio" id="effect_clean" name="text_effect" value="none" checked>
+                                        <label for="effect_clean" class="effect-card-label">
+                                            <div class="effect-demo">Clean</div>
+                                            <span class="effect-title">Clean</span>
                                         </label>
                                     </div>
-                                    <div class="effect-option">
+                                    
+                                    <div class="effect-card">
                                         <input type="radio" id="effect_glow" name="text_effect" value="glow">
-                                        <label for="effect_glow" class="effect-label">
-                                            <span class="effect-preview text-glow">Glowing Text</span>
-                                            <span class="effect-name">Soft Glow</span>
+                                        <label for="effect_glow" class="effect-card-label">
+                                            <div class="effect-demo glow-demo">Glow</div>
+                                            <span class="effect-title">Soft Glow</span>
                                         </label>
                                     </div>
-                                    <div class="effect-option">
+                                    
+                                    <div class="effect-card">
                                         <input type="radio" id="effect_gradient" name="text_effect" value="gradient">
-                                        <label for="effect_gradient" class="effect-label">
-                                            <span class="effect-preview text-gradient">Gradient Text</span>
-                                            <span class="effect-name">Gradient</span>
+                                        <label for="effect_gradient" class="effect-card-label">
+                                            <div class="effect-demo gradient-demo">Gradient</div>
+                                            <span class="effect-title">Rainbow</span>
                                         </label>
                                     </div>
-                                    <div class="effect-option">
+                                    
+                                    <div class="effect-card">
                                         <input type="radio" id="effect_shadow" name="text_effect" value="shadow">
-                                        <label for="effect_shadow" class="effect-label">
-                                            <span class="effect-preview text-shadow">Shadow Text</span>
-                                            <span class="effect-name">Drop Shadow</span>
+                                        <label for="effect_shadow" class="effect-card-label">
+                                            <div class="effect-demo shadow-demo">Shadow</div>
+                                            <span class="effect-title">Drop Shadow</span>
                                         </label>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="form-group">
-                                <label class="form-label">🎭 Text Animation</label>
-                                <div class="animation-options">
-                                    <div class="animation-option">
+                            <!-- Animation Section -->
+                            <div class="enhancement-section">
+                                <div class="section-header">
+                                    <h4 class="section-title">🎭 Text Animation</h4>
+                                    <p class="section-subtitle">How should your message appear?</p>
+                                </div>
+                                
+                                <div class="animation-grid">
+                                    <div class="animation-card">
                                         <input type="radio" id="anim_fade" name="text_animation" value="fade_in" checked>
-                                        <label for="anim_fade" class="animation-label">
-                                            <span class="animation-name">Fade In</span>
-                                            <span class="animation-desc">Gentle fade in</span>
+                                        <label for="anim_fade" class="animation-card-label">
+                                            <div class="animation-icon">💫</div>
+                                            <div class="animation-info">
+                                                <span class="animation-title">Fade In</span>
+                                                <span class="animation-desc">Gentle appearance</span>
+                                            </div>
                                         </label>
                                     </div>
-                                    <div class="animation-option">
+                                    
+                                    <div class="animation-card">
                                         <input type="radio" id="anim_typewriter" name="text_animation" value="typewriter">
-                                        <label for="anim_typewriter" class="animation-label">
-                                            <span class="animation-name">Typewriter</span>
-                                            <span class="animation-desc">Types out character by character</span>
+                                        <label for="anim_typewriter" class="animation-card-label">
+                                            <div class="animation-icon">⌨️</div>
+                                            <div class="animation-info">
+                                                <span class="animation-title">Typewriter</span>
+                                                <span class="animation-desc">Letter by letter</span>
+                                            </div>
                                         </label>
                                     </div>
-                                    <div class="animation-option">
+                                    
+                                    <div class="animation-card">
                                         <input type="radio" id="anim_bounce" name="text_animation" value="bounce">
-                                        <label for="anim_bounce" class="animation-label">
-                                            <span class="animation-name">Bounce In</span>
-                                            <span class="animation-desc">Bounces in with spring effect</span>
+                                        <label for="anim_bounce" class="animation-card-label">
+                                            <div class="animation-icon">🎈</div>
+                                            <div class="animation-info">
+                                                <span class="animation-title">Bounce</span>
+                                                <span class="animation-desc">Playful entrance</span>
+                                            </div>
                                         </label>
                                     </div>
-                                    <div class="animation-option">
+                                    
+                                    <div class="animation-card">
                                         <input type="radio" id="anim_wave" name="text_animation" value="wave">
-                                        <label for="anim_wave" class="animation-label">
-                                            <span class="animation-name">Wave</span>
-                                            <span class="animation-desc">Letters wave in sequence</span>
+                                        <label for="anim_wave" class="animation-card-label">
+                                            <div class="animation-icon">🌊</div>
+                                            <div class="animation-info">
+                                                <span class="animation-title">Wave</span>
+                                                <span class="animation-desc">Flowing motion</span>
+                                            </div>
                                         </label>
                                     </div>
                                 </div>
@@ -408,10 +479,10 @@ Valentine's Day Experience Generator
     </footer>
 
     <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='js/color-gradients.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/particle-systems.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/svg-animations.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/typography-manager.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/generator.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/color-gradients.js') }}?v=2.7"></script>
+    <script src="{{ url_for('static', filename='js/particle-systems.js') }}?v=2.7"></script>
+    <script src="{{ url_for('static', filename='js/svg-animations.js') }}?v=2.7"></script>
+    <script src="{{ url_for('static', filename='js/typography-manager.js') }}?v=2.7"></script>
+    <script src="{{ url_for('static', filename='js/generator.js') }}?v=2.7"></script>
 </body>
 </html>

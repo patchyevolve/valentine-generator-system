@@ -27,10 +27,10 @@ Valentine's Day Experience
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/experience.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/particle-animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/svg-animations.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography-animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/experience.css') }}?v=2.8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/particle-animations.css') }}?v=2.8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/svg-animations.css') }}?v=2.8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography-animations.css') }}?v=2.8">
     
     <!-- Dynamic Theme Styles -->
     <style>
@@ -218,15 +218,20 @@ Valentine's Day Experience
             has_memory: {{ 'true' if experience.memory_text else 'false' }},
             has_video: {{ 'true' if experience.video_filename else 'false' }},
             background_style: '{{ experience.background_style }}',
-            color_palette: '{{ experience.color_palette }}'
+            color_palette: '{{ experience.color_palette }}',
+            font_style: '{{ experience.font_style or "sans_modern" }}',
+            text_effect: '{{ experience.text_effect or "none" }}',
+            text_animation: '{{ experience.text_animation or "fade_in" }}',
+            particle_system: '{{ experience.particle_system or "none" }}',
+            svg_animation: '{{ experience.svg_animation or "none" }}'
         };
     </script>
 
     <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='js/color-gradients.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/particle-systems.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/svg-animations.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/typography-manager.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/experience.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/color-gradients.js') }}?v=2.8"></script>
+    <script src="{{ url_for('static', filename='js/particle-systems.js') }}?v=2.8"></script>
+    <script src="{{ url_for('static', filename='js/svg-animations.js') }}?v=2.8"></script>
+    <script src="{{ url_for('static', filename='js/typography-manager.js') }}?v=2.8"></script>
+    <script src="{{ url_for('static', filename='js/experience.js') }}?v=2.8"></script>
 </body>
 </html>

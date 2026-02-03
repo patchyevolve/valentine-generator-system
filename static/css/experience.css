@@ -851,3 +851,143 @@ body {
         transform: scale(1);
     }
 }
+
+/* Text Effect Classes */
+.text-glow {
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+    animation: textGlow 2s ease-in-out infinite alternate;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+}
+
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 4px 4px 8px rgba(0,0,0,0.2);
+}
+
+.text-outline {
+    -webkit-text-stroke: 1px rgba(255,255,255,0.5);
+    text-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.text-emboss {
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.3), -1px -1px 0px rgba(0,0,0,0.3);
+}
+
+.text-neon {
+    color: #fff;
+    text-shadow: 
+        0 0 5px currentColor,
+        0 0 10px currentColor,
+        0 0 15px currentColor,
+        0 0 20px var(--accent-color, #ff6b9d);
+    animation: neonFlicker 1.5s ease-in-out infinite alternate;
+}
+
+/* Background preview active state */
+.background-preview-active {
+    position: relative;
+    overflow: hidden;
+}
+
+.background-preview-active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 1;
+    animation: previewPulse 2s ease-in-out;
+}
+
+@keyframes previewPulse {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.02);
+    }
+}
+
+@keyframes neonFlicker {
+    0%, 100% {
+        text-shadow: 
+            0 0 5px currentColor,
+            0 0 10px currentColor,
+            0 0 15px currentColor,
+            0 0 20px var(--accent-color, #ff6b9d);
+        opacity: 1;
+    }
+    50% {
+        text-shadow: 
+            0 0 2px currentColor,
+            0 0 5px currentColor;
+        opacity: 0.8;
+    }
+}
+
+/* Text Animation Classes */
+.anim-typewriter {
+    overflow: hidden;
+    border-right: 2px solid var(--primary-color);
+    white-space: nowrap;
+    animation: typewriter 3s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+.anim-bounce {
+    animation: bounceIn 1s ease-out;
+}
+
+.anim-wave {
+    animation: wave 2s ease-in-out infinite;
+}
+
+.anim-fade_in {
+    animation: fadeIn 1.5s ease-out;
+}
+
+/* Keyframe Animations */
+@keyframes textGlow {
+    from { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor; }
+    to { text-shadow: 0 0 20px currentColor, 0 0 30px currentColor, 0 0 40px currentColor; }
+}
+
+@keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--primary-color); }
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes wave {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
